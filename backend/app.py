@@ -36,6 +36,24 @@ model_name = "yangheng/deberta-v3-base-absa-v1.1"
 absa_tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
 absa_model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
+# Emotion classifier (7 single-label emotions). Loaded the same way as the ABSA
+# model; adds an emotion axis on top of sentiment polarity.
+emotion_name = "j-hartmann/emotion-english-distilroberta-base"
+emotion_tokenizer = AutoTokenizer.from_pretrained(emotion_name)
+emotion_model = AutoModelForSequenceClassification.from_pretrained(emotion_name)
+
+
+def classify_emotion(text: str):
+    """Return the dominant emotion for a piece of text as {label, score}."""
+    inputs = emotion_tokenizer(text, return_tensors="pt", truncation=True)
+    with torch.no_grad():
+        probs = F.softmax(emotion_model(**inputs).logits, dim=1)[0]
+    idx = int(torch.argmax(probs))
+    return {
+        "label": emotion_model.config.id2label[idx],
+        "score": round(probs[idx].item(), 2),
+    }
+
 # -------------------------------------------------------
 # 📦 Request Model
 # -------------------------------------------------------
@@ -46,35 +64,37 @@ class TextRequest(BaseModel):
 # -------------------------------------------------------
 # 🧩 Aspect Extraction (Contrast-Aware)
 # -------------------------------------------------------
+# Words that mark a contrast between clauses. We split on these (and semicolons)
+# and drop the connector, so each clause is a clean substring of the input.
+CONTRAST_WORDS = ["but", "however", "although", "though", "yet", "while", "whereas"]
+_SPLIT_RE = re.compile(r"\s*;\s*|\b(?:" + "|".join(CONTRAST_WORDS) + r")\b", re.IGNORECASE)
+
+
 def extract_aspect_sentences(text: str):
     """
-    Extracts key aspect phrases. Splits compound sentences
-    on contrast words like 'but', 'however', 'although', etc.
+    Split the text into clause-level aspects. Each spaCy sentence is further
+    split on contrast words and semicolons, the connector is dropped, whitespace
+    is normalized, and clauses shorter than three words are ignored.
     """
     doc = nlp(text)
-    aspects = [sent.text.strip() for sent in doc.sents if len(sent.text.strip().split()) > 2]
+    sentences = [s.text.strip() for s in doc.sents if s.text.strip()] or [text]
 
-    # Step 2: Manual split for contrast words if SpaCy only finds one part
-    if len(aspects) <= 1:
-        contrast_words = ["but", "however", "although", "though", "yet"]
-        pattern = r"\b(" + "|".join(contrast_words) + r")\b"
-        parts = re.split(pattern, text, flags=re.IGNORECASE)
+    clauses = []
+    for sentence in sentences:
+        for part in _SPLIT_RE.split(sentence):
+            clause = re.sub(r"\s+", " ", part or "").strip()
+            if len(clause.split()) > 2:
+                clauses.append(clause)
 
-        merged = []
-        buffer = ""
-        for part in parts:
-            if part.strip().lower() in contrast_words:
-                if buffer.strip():
-                    merged.append(buffer.strip())
-                buffer = part
-            else:
-                buffer += " " + part
-        if buffer.strip():
-            merged.append(buffer.strip())
-
-        aspects = [p.strip() for p in merged if len(p.strip().split()) > 2]
-
-    return aspects
+    # De-duplicate case-insensitively while preserving order.
+    seen = set()
+    unique = []
+    for clause in clauses:
+        key = clause.lower()
+        if key not in seen:
+            seen.add(key)
+            unique.append(clause)
+    return unique
 
 
 # -------------------------------------------------------
@@ -131,6 +151,7 @@ def analyze_prompt(request: TextRequest):
                     "Neutral": round(probs[1].item(), 2),
                     "Positive": round(probs[2].item(), 2),
                 },
+                "emotion": classify_emotion(aspect),
             }
             results.append(entry)
             if sentiment in grouped:
@@ -183,7 +204,8 @@ def analyze_prompt(request: TextRequest):
             "text": prompt,
             "overall": {
                 "sentiment": overall_sentiment,
-                "score": round(overall_confidence, 2)
+                "score": round(overall_confidence, 2),
+                "emotion": classify_emotion(prompt),
             },
             "grouped": grouped,
             "results": results

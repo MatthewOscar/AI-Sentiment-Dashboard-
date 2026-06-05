@@ -40,7 +40,10 @@ RUN python -c "import spacy; spacy.load('en_core_web_sm'); \
 from transformers import AutoTokenizer, AutoModelForSequenceClassification; \
 m='yangheng/deberta-v3-base-absa-v1.1'; \
 AutoTokenizer.from_pretrained(m, use_fast=False); \
-AutoModelForSequenceClassification.from_pretrained(m)"
+AutoModelForSequenceClassification.from_pretrained(m); \
+e='j-hartmann/emotion-english-distilroberta-base'; \
+AutoTokenizer.from_pretrained(e); \
+AutoModelForSequenceClassification.from_pretrained(e)"
 
 EXPOSE 7860
 

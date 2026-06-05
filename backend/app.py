@@ -43,16 +43,27 @@ emotion_tokenizer = AutoTokenizer.from_pretrained(emotion_name)
 emotion_model = AutoModelForSequenceClassification.from_pretrained(emotion_name)
 
 
+# Below this top-class probability the model is not confident in any single
+# emotion (common for short or ambiguous input), so we report neutral instead of
+# a noisy label.
+EMOTION_MIN_CONFIDENCE = 0.4
+
+
 def classify_emotion(text: str):
-    """Return the dominant emotion for a piece of text as {label, score}."""
+    """Return the dominant emotion as {label, score}, falling back to neutral
+    when the model is not confident in any single emotion."""
     inputs = emotion_tokenizer(text, return_tensors="pt", truncation=True)
     with torch.no_grad():
         probs = F.softmax(emotion_model(**inputs).logits, dim=1)[0]
     idx = int(torch.argmax(probs))
-    return {
-        "label": emotion_model.config.id2label[idx],
-        "score": round(probs[idx].item(), 2),
-    }
+    label = emotion_model.config.id2label[idx]
+    score = probs[idx].item()
+
+    if score < EMOTION_MIN_CONFIDENCE and label != "neutral":
+        neutral_idx = emotion_model.config.label2id.get("neutral", idx)
+        return {"label": "neutral", "score": round(float(probs[neutral_idx]), 2)}
+
+    return {"label": label, "score": round(score, 2)}
 
 # -------------------------------------------------------
 # 📦 Request Model

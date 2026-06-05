@@ -1,0 +1,12 @@
+# Netlify build config for the Vite frontend.
+# In the Netlify UI, set the site's "Base directory" to: frontend
+# (then this file is read and publish/dist are resolved relative to it).
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Single-page app fallback so any path serves index.html.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

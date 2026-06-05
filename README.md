@@ -1,162 +1,118 @@
-# 🧠 AI-Sentiment-Dashboard
-**Responsible AI Sentiment Dashboard for Florida Atlantic University **
+# AI Sentiment Dashboard
 
-Link for Powerpoint: https://1drv.ms/p/c/6c383511022771d7/EW9zlOjly_RIvPyB5oOc7LgB9Kawy8fz8QU_1W5IMGtXVQ
+A web tool that reads a sentence and shows the feeling behind each part of it, not only a single label for the whole thing. Type a message, click Analyze, and the dashboard breaks it into aspects, scores each one, and highlights the exact words that drove the result.
 
----
+Built for Florida Atlantic University's CAP 4630 (Artificial Intelligence) as a Responsible AI project.
 
-<img width="500" height="250" alt="AI Sentiment Dashboard Screenshot" src="https://github.com/user-attachments/assets/f55676d8-d356-4228-a92b-b2281a99985e" />
+Slides: https://1drv.ms/p/c/6c383511022771d7/EW9zlOjly_RIvPyB5oOc7LgB9Kawy8fz8QU_1W5IMGtXVQ
 
----
+![AI Sentiment Dashboard](docs/screenshots/after-mixed.png)
 
-##  Project Overview
-The **AI Sentiment Dashboard** is a web-based tool that analyzes user-entered text and classifies it as **Positive**, **Negative**, or **Neutral**.
+## Live demo
 
-Users can type any message into the text box and click **Analyze**.  
-The dashboard instantly displays:
+- App (Netlify): _add your Netlify URL here after deploying_
+- API (Hugging Face Space): _add your Space URL here after deploying_
 
-- The **predicted sentiment** (e.g., 😊 Positive / 😐 Neutral / ☹️ Negative)  
-- **Probability scores** showing model confidence  
-- A short **Responsible AI notice** reminding users that predictions are educational, probabilistic, and privacy-safe  
+See [DEPLOY.md](DEPLOY.md) for the full deployment walkthrough.
 
-This project was built for **Florida Atlantic University’s CAP 4630 – Artificial Intelligence** course to demonstrate responsible AI principles, model deployment, and transparent design.
+## What makes it different
 
----
+Most sentiment demos return one label for an entire sentence, which falls apart on real opinions like "the food was amazing but the service was slow." This dashboard uses **aspect-based sentiment analysis**: it splits a sentence into its parts, scores each part on its own, and then sums them into an overall read. A mixed sentence comes back as Mixed, with the positive clause shown in green and the negative clause in red.
 
-##  Features
+## Features
 
-###  Core Functionality
-- Real-time text sentiment analysis  
-- Emoji-based result visualization  
-- Probability breakdown (e.g., Positive 70%, Neutral 20%, Negative 10%)  
-- **FastAPI backend** + **React frontend** integration  
-- Lightweight and privacy-safe — no data storage  
+- Aspect-level analysis that handles mixed and contrasting opinions in one sentence
+- The original text re-rendered with each aspect highlighted by sentiment
+- A confidence gauge for the overall result and a bar for every aspect
+- Hover a bar to light up its phrase in the text, and the other way round
+- One-click example prompts, including two mixed-sentiment sentences
+- Clear loading, empty, and error states, with a retry on failure
+- Keyboard submit, ARIA labels, and shape glyphs so meaning never depends on color alone
+- Light and dark themes that follow the system setting, with reduced-motion support
 
----
+## Before and after
 
-##  Responsible AI
-This project follows **Responsible AI** principles to ensure transparency and fairness.
+| Before | After |
+| --- | --- |
+| ![before](docs/screenshots/before-result.png) | ![after](docs/screenshots/after-mixed.png) |
 
-### **Biases**
-The model may reflect biases from its training data, especially around slang, cultural references, or underrepresented groups.
+The starting point was a single page that printed results as a flat list of text. The rebuild adds the gauge, the in-text highlighting, the per-aspect bars, and a public deployment.
 
-### **Limitations**
-- Struggles with sarcasm, mixed emotions, or non-English text  
-- Does not provide advice, emotional guidance, or next steps  
+## Tech stack
 
-### **Data Privacy**
-No personal information is stored.  
-User text is processed once to generate results and then discarded immediately.
-
-### **Probabilities & Transparency**
-The system shows model confidence, e.g.  
-**Positive: 70% | Neutral: 20% | Negative: 10%**  
-This helps users interpret outputs responsibly and understand uncertainty.
-
----
-
-## Technical Stack
 | Layer | Technology |
-|-------|-------------|
-| **Frontend** | React + Vite + Axios |
-| **Backend** | FastAPI (Python) |
-| **Model** | Hugging Face RoBERTa (`cardiffnlp/twitter-roberta-base-sentiment`) |
-| **Libraries** | PyTorch, Transformers, Uvicorn |
-| **Environment** | Local development / Cloud prototype |
+| --- | --- |
+| Frontend | React 19 + Vite, hand-built SVG visuals animated with Motion |
+| Backend | FastAPI (Python) on Uvicorn |
+| Aspect splitting | spaCy (`en_core_web_sm`) |
+| Sentiment model | DeBERTa ABSA (`yangheng/deberta-v3-base-absa-v1.1`) via Hugging Face Transformers + PyTorch |
+| Deploy | Netlify (frontend) and a Hugging Face Docker Space (API) |
 
----
+## How it works
 
-## Installation & Usage
-Quick start:
+1. The React frontend sends the text to the backend at `POST /api/analyze`.
+2. spaCy splits the text into clauses, with an extra split on contrast words such as "but" and "however".
+3. The DeBERTa ABSA model scores each clause as Positive, Negative, or Neutral with a confidence value.
+4. The backend combines the clause scores into an overall label (Positive, Negative, Neutral, or Mixed) and returns the per-aspect breakdown as JSON.
+5. The frontend renders the gauge, highlights each aspect in the original text, and draws the confidence bars.
+
+## Run it locally
 
 1. Create and activate the Python virtual environment.
 
-```bash
-python3 -m venv .venv
-source .venv/bin/activate      # Mac/Linux
-# or: .venv\Scripts\activate   # Windows
-```
+   ```bash
+   python3 -m venv .venv
+   source .venv/bin/activate      # Mac/Linux
+   # or: .venv\Scripts\activate    # Windows
+   ```
 
 2. Install the backend dependencies.
 
+   ```bash
+   pip3 install -r backend/requirements.txt
+   ```
+
+3. Install the frontend dependencies.
+
+   ```bash
+   cd frontend && npm install && cd ..
+   ```
+
+4. Start both servers.
+
+   ```bash
+   ./start-dev.sh
+   ```
+
+   The launcher starts the FastAPI backend on port 8000 and the Vite frontend on port 5173, and writes logs to `.backend-dev.log` and `.frontend-dev.log`.
+
+To run them separately:
+
 ```bash
-pip3 install -r backend/requirements.txt
+cd backend && uvicorn app:app --reload --port 8000
 ```
 
-3. Start the app.
-
 ```bash
-./start-dev.sh
+cd frontend && npm run dev
 ```
 
-The launcher starts both the FastAPI backend and the Vite frontend, and it writes logs to `.backend-dev.log` and `.frontend-dev.log` in the repo root.
+The frontend reads the backend URL from `VITE_API_URL` and falls back to `http://127.0.0.1:8000` for local development. See `frontend/.env.example`.
 
-If you prefer to run things separately:
+## Responsible AI
 
-```bash
-cd frontend
-npm install
-npm run dev
-```
+- **Privacy:** no text is stored. Each request is processed once and discarded.
+- **Transparency:** every result shows a confidence value, and the aspect breakdown shows which words led to it.
+- **Limitations:** the model can miss sarcasm and irony, and it works on English text. Results are probabilistic, not deterministic, and are meant for educational use.
+- **Bias:** the model reflects patterns in its training data and may handle slang, dialects, and underrepresented groups less reliably.
 
-```bash
-cd backend
-uvicorn app:app --reload --port 8000
-```
+## Contributors
 
-If you change the backend port from `8000`, update the URL in `frontend/src/api.jsx` too.
-
-## System Architecture
-
-The AI Sentiment Dashboard follows a simple and transparent architecture consisting of three core layers:
-
-1. **Frontend (React)**  
-   - Handles user input through a web interface.  
-   - Sends the text to the backend using Axios.  
-   - Displays the sentiment label, emoji, and confidence scores returned from the backend.  
-
-2. **Backend (FastAPI – Python)**  
-   - Acts as an intermediary between the frontend and the machine learning model.  
-   - Exposes a REST API endpoint (`/analyze`) to receive text input.  
-   - Passes user text to the sentiment analysis model and returns the results.  
-
-3. **Model Layer (Hugging Face RoBERTa)**  
-   - Processes the text using a pre-trained transformer model.  
-   - Generates probability scores for **Positive**, **Negative**, and **Neutral** sentiment.  
-   - Sends the final results back to the backend in JSON format.  
-
-4. **Results Display (Frontend Output)**  
-   - The frontend updates the UI with:  
-     - The predicted sentiment (😊 / 😐 / ☹️)  
-     - Probability scores (e.g., Positive 72%, Neutral 18%, Negative 10%)  
-     - A brief Responsible AI notice about data privacy and interpretability.
-
-## Flow Summary 
-1. User enters text on the dashboard
-2. Frontend sends the request to the FastAPI backend
-3. Backend runs inference with RoBERTa
-4. Model returns sentiment + probabilities
-5. Frontend displays the result with an emoji
-
-## Future Improvements 
-- Multi-language support
-- Improved handling of sarcasm and mixed emotions
-- Add word-level explainability visualization
-- Deploy to AWS for public access
-
-## Contributors 
-- **Machine Learning Lead –** Christopher Piedra  
-- **Backend Developer –** Matthew White  
-- **Frontend Developer –** Matthew Wyatt  
-- **Data Engineer –** Sophia Camacho  
-- **Responsible AI & Documentation Lead / PM –** Mackenzie Falla
-
-
+- Machine Learning Lead: Christopher Piedra
+- Backend Developer: Matthew White
+- Frontend Developer: Matthew Wyatt
+- Data Engineer: Sophia Camacho
+- Responsible AI and Documentation Lead / PM: Mackenzie Falla
 
 ---
 
-# ⚠️ ALL PREDICTIONS ARE PROBABILISTIC AND NOT DETERMINISTIC
-> No personal data is stored.  
-> Predictions are generated locally and are for educational use only under **FAU’s CAP 4630 – Artificial Intelligence**.
-
-
+All predictions are probabilistic and for educational use under FAU's CAP 4630 (Artificial Intelligence).

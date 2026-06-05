@@ -3,7 +3,7 @@
 // without calling the model again.
 
 const KEY = "ai-sentiment-history";
-const MAX = 8;
+const MAX = 50;
 
 export function makeId() {
     return `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;

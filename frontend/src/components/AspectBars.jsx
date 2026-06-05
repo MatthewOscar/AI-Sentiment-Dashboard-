@@ -1,8 +1,16 @@
 import { motion } from "motion/react";
 import { metaFor, pct } from "../lib/sentiment";
 
-// Per-aspect confidence bars. Each row reports its own sentiment + score, and
-// hovering/focusing a row cross-highlights the matching phrase in the text.
+// Segment order for the stacked distribution bar (left to right).
+const SEGMENTS = [
+    { key: "neg", label: "Negative", prob: "Negative" },
+    { key: "neu", label: "Neutral", prob: "Neutral" },
+    { key: "pos", label: "Positive", prob: "Positive" },
+];
+
+// Per-aspect bars. When the backend returns the full class distribution, show a
+// stacked Negative/Neutral/Positive bar; otherwise (older cached entries) fall
+// back to a single confidence fill. Hover/focus cross-highlights the phrase.
 export default function AspectBars({ results, hoveredKey, onHover }) {
     if (!results || results.length === 0) return null;
 
@@ -11,13 +19,17 @@ export default function AspectBars({ results, hoveredKey, onHover }) {
             {results.map((r, i) => {
                 const meta = metaFor(r.sentiment);
                 const active = hoveredKey === i;
-                const width = Math.max(0, Math.min(1, r.score || 0)) * 100;
+                const probs = r.probabilities;
+                const label = probs
+                    ? `${r.aspect}: ${meta.label} ${pct(r.score)}. Positive ${pct(probs.Positive)}, Neutral ${pct(probs.Neutral)}, Negative ${pct(probs.Negative)}`
+                    : `${r.aspect}: ${meta.label}, ${pct(r.score)}`;
+
                 return (
                     <li
                         key={i}
                         className={`bar bar--${meta.key} ${active ? "is-active" : ""}`}
                         role="img"
-                        aria-label={`${r.aspect}: ${meta.label}, ${pct(r.score)}`}
+                        aria-label={label}
                         tabIndex={0}
                         onMouseEnter={() => onHover?.(i)}
                         onMouseLeave={() => onHover?.(null)}
@@ -29,14 +41,40 @@ export default function AspectBars({ results, hoveredKey, onHover }) {
                             <span className="bar__pct">{pct(r.score)}</span>
                         </div>
                         <div className="bar__phrase">{r.aspect}</div>
-                        <div className="bar__track">
-                            <motion.div
-                                className="bar__fill"
-                                initial={{ width: 0 }}
-                                animate={{ width: `${width}%` }}
-                                transition={{ duration: 0.7, ease: "easeOut", delay: i * 0.08 }}
-                            />
-                        </div>
+
+                        {probs ? (
+                            <div className="bar__stack" aria-hidden="true">
+                                {SEGMENTS.map((seg, j) => {
+                                    const value = Math.max(0, Math.min(1, probs[seg.prob] || 0));
+                                    if (value <= 0) return null;
+                                    return (
+                                        <motion.div
+                                            key={seg.key}
+                                            className={`bar__seg seg--${seg.key}`}
+                                            title={`${seg.label} ${pct(value)}`}
+                                            initial={{ width: 0 }}
+                                            animate={{ width: `${value * 100}%` }}
+                                            transition={{
+                                                duration: 0.7,
+                                                ease: "easeOut",
+                                                delay: i * 0.08 + j * 0.04,
+                                            }}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <div className="bar__track">
+                                <motion.div
+                                    className="bar__fill"
+                                    initial={{ width: 0 }}
+                                    animate={{
+                                        width: `${Math.max(0, Math.min(1, r.score || 0)) * 100}%`,
+                                    }}
+                                    transition={{ duration: 0.7, ease: "easeOut", delay: i * 0.08 }}
+                                />
+                            </div>
+                        )}
                     </li>
                 );
             })}

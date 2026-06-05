@@ -6,16 +6,23 @@ import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 import spacy
 import re
+import os
 
 app = FastAPI()
 
 # -------------------------------------------------------
 # 🛡️ CORS Middleware
 # -------------------------------------------------------
+# Allowed origins come from the ALLOWED_ORIGINS env var (comma separated),
+# defaulting to local dev. Credentials are off because the API uses no cookies,
+# which also avoids the illegal "*" + credentials combination in production.
+_origins = os.getenv("ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173")
+allowed_origins = [o.strip() for o in _origins.split(",") if o.strip()]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=allowed_origins,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -23,7 +30,7 @@ app.add_middleware(
 # -------------------------------------------------------
 # 🧠 Load Models
 # -------------------------------------------------------
-nlp = spacy.load("en_core_web_trf")
+nlp = spacy.load("en_core_web_sm")
 
 model_name = "yangheng/deberta-v3-base-absa-v1.1"
 absa_tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
@@ -68,6 +75,14 @@ def extract_aspect_sentences(text: str):
         aspects = [p.strip() for p in merged if len(p.strip().split()) > 2]
 
     return aspects
+
+
+# -------------------------------------------------------
+# ❤️ Health check (frontend pings this to warm up the Space)
+# -------------------------------------------------------
+@app.get("/health")
+def health():
+    return {"status": "ok"}
 
 
 # -------------------------------------------------------
@@ -143,7 +158,9 @@ def analyze_prompt(request: TextRequest):
 
             else:
                 overall_sentiment = "Neutral"
-                overall_confidence = round(abs(avg_score), 2)
+                # Use the mean aspect confidence so a neutral result reports its
+                # real certainty instead of ~0 from the signed weighted average.
+                overall_confidence = round(sum(r["score"] for r in results) / len(results), 2)
 
         else:
             # Fallback: analyze whole prompt

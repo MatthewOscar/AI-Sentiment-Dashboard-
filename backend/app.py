@@ -124,7 +124,13 @@ def analyze_prompt(request: TextRequest):
             entry = {
                 "aspect": aspect,
                 "sentiment": sentiment,
-                "score": round(score, 2)
+                "score": round(score, 2),
+                # Raw model distribution over the three classes (label_map order).
+                "probabilities": {
+                    "Negative": round(probs[0].item(), 2),
+                    "Neutral": round(probs[1].item(), 2),
+                    "Positive": round(probs[2].item(), 2),
+                },
             }
             results.append(entry)
             if sentiment in grouped:

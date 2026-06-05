@@ -5,6 +5,62 @@
   gap: 1.8rem;
 }
 
+/* theme toggle */
+.theme-toggle {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 50;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.05rem;
+  border-radius: 999px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  transition: transform 0.15s ease, background 0.2s ease;
+}
+
+.theme-toggle:hover {
+  transform: scale(1.08);
+  background: var(--surface);
+}
+
+/* cursor glow (wide screens with a real pointer only) */
+.mouse-glow {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.mouse-glow__blob {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 600px;
+  height: 600px;
+  margin: -300px 0 0 -300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 224, 164, 0.18), rgba(108, 123, 255, 0.12) 42%, transparent 70%);
+  filter: blur(40px);
+}
+
+@media (max-width: 1023px) {
+  .mouse-glow { display: none; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mouse-glow { display: none; }
+}
+
 /* ---------- hero ---------- */
 .hero {
   text-align: center;

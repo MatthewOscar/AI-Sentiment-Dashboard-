@@ -22,7 +22,7 @@
 
   font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.6;
-  color-scheme: light dark;
+  color-scheme: dark;
   color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -35,6 +35,7 @@ html, body { min-height: 100%; }
 body {
   margin: 0;
   min-width: 320px;
+  overflow-x: hidden;
   color: var(--text);
   background: radial-gradient(1200px 600px at 50% -10%, #1d1d2e 0%, var(--bg-0) 60%);
   background-attachment: fixed;
@@ -67,25 +68,26 @@ button { font-family: inherit; }
   border: 0;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    --bg-0: #eef1f6;
-    --surface: rgba(15, 18, 30, 0.04);
-    --surface-2: rgba(15, 18, 30, 0.06);
-    --field: #ffffff;
-    --border: rgba(15, 18, 30, 0.12);
-    --text: #1a1d29;
-    --text-dim: #4b5566;
-    --text-faint: #6b7488;
-    --pos: #15803d; --pos-soft: rgba(21, 128, 61, 0.12);
-    --neg: #b91c1c; --neg-soft: rgba(185, 28, 28, 0.10);
-    --neu: #4b5563; --neu-soft: rgba(75, 85, 99, 0.10);
-    --mix: #b45309; --mix-soft: rgba(180, 83, 9, 0.10);
-  }
+/* Light theme. An inline script sets data-theme from the stored choice or the
+   device preference before paint, so this applies whenever light is active. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --bg-0: #eef1f6;
+  --surface: rgba(15, 18, 30, 0.04);
+  --surface-2: rgba(15, 18, 30, 0.06);
+  --field: #ffffff;
+  --border: rgba(15, 18, 30, 0.12);
+  --text: #1a1d29;
+  --text-dim: #4b5566;
+  --text-faint: #6b7488;
+  --pos: #15803d; --pos-soft: rgba(21, 128, 61, 0.12);
+  --neg: #b91c1c; --neg-soft: rgba(185, 28, 28, 0.10);
+  --neu: #4b5563; --neu-soft: rgba(75, 85, 99, 0.10);
+  --mix: #b45309; --mix-soft: rgba(180, 83, 9, 0.10);
+}
 
-  body {
-    background: radial-gradient(1200px 600px at 50% -10%, #ffffff 0%, var(--bg-0) 70%);
-  }
+:root[data-theme="light"] body {
+  background: radial-gradient(1200px 600px at 50% -10%, #ffffff 0%, var(--bg-0) 70%);
 }
 
 @media (prefers-reduced-motion: reduce) {

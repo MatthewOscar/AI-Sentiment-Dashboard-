@@ -4,6 +4,8 @@ import { analyzeText, pingHealth } from "./api";
 import ExampleChips from "./components/ExampleChips";
 import ResultCard from "./components/ResultCard";
 import Spinner from "./components/Spinner";
+import ThemeToggle from "./components/ThemeToggle";
+import MouseGlow from "./components/MouseGlow";
 
 const SUBMIT_KEY =
     typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform)
@@ -80,6 +82,8 @@ export default function App() {
 
     return (
         <div className="app">
+            <MouseGlow />
+            <ThemeToggle />
             <header className="hero">
                 <p className="hero__badge">Aspect-based sentiment analysis</p>
                 <h1 className="hero__title">AI Sentiment Dashboard</h1>

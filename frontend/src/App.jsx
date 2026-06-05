@@ -7,12 +7,24 @@ import Spinner from "./components/Spinner";
 import ThemeToggle from "./components/ThemeToggle";
 import MouseGlow from "./components/MouseGlow";
 import HistoryPanel from "./components/HistoryPanel";
+import StatusDot from "./components/StatusDot";
 import { loadHistory, addToHistory, clearHistory, makeId } from "./lib/history";
 
 const SUBMIT_KEY =
     typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform)
         ? "⌘"
         : "Ctrl";
+
+function setQueryParam(text) {
+    try {
+        const url = text
+            ? `?q=${encodeURIComponent(text)}`
+            : window.location.pathname;
+        window.history.replaceState(null, "", url);
+    } catch {
+        /* ignore history errors */
+    }
+}
 
 export default function App() {
     const [input, setInput] = useState("");
@@ -23,6 +35,8 @@ export default function App() {
     const [cold, setCold] = useState(false); // first run / cold-start copy
     const [history, setHistory] = useState(() => loadHistory());
     const [activeId, setActiveId] = useState(null);
+    const [backendReady, setBackendReady] = useState(false);
+    const [copied, setCopied] = useState(false);
 
     const lastInput = useRef("");
     const textareaRef = useRef(null);
@@ -34,7 +48,8 @@ export default function App() {
         const tick = async () => {
             const ok = await pingHealth();
             if (cancelled) return;
-            if (!ok) setTimeout(tick, 5000);
+            if (ok) setBackendReady(true);
+            else setTimeout(tick, 5000);
         };
         tick();
         return () => {
@@ -63,6 +78,7 @@ export default function App() {
             setStatus("success");
             setActiveId(entry.id);
             setHistory((prev) => addToHistory(prev, entry));
+            setQueryParam(trimmed);
         } catch (err) {
             setErrorMsg(err.message || "Something went wrong.");
             setStatus("error");
@@ -71,6 +87,16 @@ export default function App() {
             setCold(false);
         }
     };
+
+    // Open straight to a result when arriving via a shared ?q= link.
+    useEffect(() => {
+        const q = new URLSearchParams(window.location.search).get("q");
+        if (q && q.trim()) {
+            setInput(q);
+            runAnalysis(q);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const onPickExample = (text) => {
         setInput(text);
@@ -92,6 +118,7 @@ export default function App() {
         setStatus("success");
         setActiveId(item.id);
         setFieldError("");
+        setQueryParam(item.text);
     };
 
     const onClearHistory = () => {
@@ -99,12 +126,45 @@ export default function App() {
         setActiveId(null);
     };
 
+    // Return to a fresh, empty composer. Previous analyses live in Recents.
+    const startNew = () => {
+        setStatus("idle");
+        setData(null);
+        setInput("");
+        setActiveId(null);
+        setFieldError("");
+        setErrorMsg("");
+        setQueryParam("");
+        requestAnimationFrame(() => textareaRef.current?.focus());
+    };
+
+    const shareOrCopy = async () => {
+        const url = window.location.href;
+        if (navigator.share) {
+            try {
+                await navigator.share({ title: "AI Sentiment Dashboard", url });
+                return;
+            } catch {
+                /* user dismissed the share sheet */
+            }
+        }
+        try {
+            await navigator.clipboard.writeText(url);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 1800);
+        } catch {
+            /* clipboard unavailable */
+        }
+    };
+
     const loading = status === "loading";
 
     return (
         <div className={`app${history.length ? " app--side" : ""}`}>
             <MouseGlow />
+            <StatusDot ready={backendReady} />
             <ThemeToggle />
+
             <header className="hero">
                 <p className="hero__badge">Aspect-based sentiment analysis</p>
                 <h1 className="hero__title">AI Sentiment Dashboard</h1>
@@ -114,58 +174,24 @@ export default function App() {
                 </p>
             </header>
 
-            <section className="panel" aria-label="Analyze text">
-                <label className="sr-only" htmlFor="sentiment-input">
-                    Text to analyze
-                </label>
-                <textarea
-                    id="sentiment-input"
-                    ref={textareaRef}
-                    className="textarea"
-                    placeholder={'e.g. "The food was amazing but the service was painfully slow."'}
-                    value={input}
-                    onChange={(e) => {
-                        setInput(e.target.value);
-                        if (fieldError) setFieldError("");
-                    }}
-                    onKeyDown={onKeyDown}
-                    aria-invalid={Boolean(fieldError)}
-                    aria-describedby={fieldError ? "field-error" : "hint"}
-                    rows={3}
-                />
-                {fieldError ? (
-                    <p id="field-error" className="field-error" role="alert">
-                        {fieldError}
-                    </p>
-                ) : (
-                    <p id="hint" className="hint">
-                        Press {SUBMIT_KEY} + Enter to analyze.
-                    </p>
-                )}
-
-                <div className="composer__actions">
-                    <button className="btn" onClick={() => runAnalysis()} disabled={loading}>
-                        {loading ? (
-                            <>
-                                <Spinner /> {cold ? "Waking up the model…" : "Analyzing…"}
-                            </>
-                        ) : (
-                            "Analyze"
-                        )}
-                    </button>
-                </div>
-
-                <ExampleChips onPick={onPickExample} disabled={loading} />
-            </section>
-
-            <section className="results" aria-live="polite" aria-busy={loading}>
-                {status === "idle" && (
-                    <div className="state state--empty">
-                        <p>Enter a sentence or pick an example to see aspect-level sentiment.</p>
+            <section className="stage" aria-live="polite" aria-busy={loading}>
+                {status === "success" && data && data.overall ? (
+                    <div className="resultview">
+                        <div className="resultview__actions">
+                            <button
+                                type="button"
+                                className="btn btn--ghost btn--sm"
+                                onClick={shareOrCopy}
+                            >
+                                {copied ? "Copied!" : "Copy link"}
+                            </button>
+                        </div>
+                        <ResultCard data={data} />
+                        <button type="button" className="btn btn--block" onClick={startNew}>
+                            Add another
+                        </button>
                     </div>
-                )}
-
-                {loading && (
+                ) : loading ? (
                     <div className="state state--loading">
                         <Spinner size={28} />
                         <p>
@@ -174,21 +200,57 @@ export default function App() {
                                 : "Analyzing your text…"}
                         </p>
                     </div>
-                )}
+                ) : (
+                    <section className="panel" aria-label="Analyze text">
+                        <label className="sr-only" htmlFor="sentiment-input">
+                            Text to analyze
+                        </label>
+                        <textarea
+                            id="sentiment-input"
+                            ref={textareaRef}
+                            className="textarea"
+                            placeholder={'e.g. "The food was amazing but the service was painfully slow."'}
+                            value={input}
+                            onChange={(e) => {
+                                setInput(e.target.value);
+                                if (fieldError) setFieldError("");
+                            }}
+                            onKeyDown={onKeyDown}
+                            aria-invalid={Boolean(fieldError)}
+                            aria-describedby={fieldError ? "field-error" : "hint"}
+                            rows={3}
+                        />
+                        {fieldError ? (
+                            <p id="field-error" className="field-error" role="alert">
+                                {fieldError}
+                            </p>
+                        ) : (
+                            <p id="hint" className="hint">
+                                Press {SUBMIT_KEY} + Enter to analyze.
+                            </p>
+                        )}
 
-                {status === "error" && (
-                    <div className="state state--error" role="alert">
-                        <p>{errorMsg}</p>
-                        <button
-                            className="btn btn--ghost"
-                            onClick={() => runAnalysis(lastInput.current)}
-                        >
-                            Retry
-                        </button>
-                    </div>
-                )}
+                        <div className="composer__actions">
+                            <button className="btn" onClick={() => runAnalysis()}>
+                                Analyze
+                            </button>
+                        </div>
 
-                {status === "success" && data && data.overall && <ResultCard data={data} />}
+                        {status === "error" && (
+                            <div className="state state--error" role="alert">
+                                <p>{errorMsg}</p>
+                                <button
+                                    className="btn btn--ghost"
+                                    onClick={() => runAnalysis(lastInput.current)}
+                                >
+                                    Retry
+                                </button>
+                            </div>
+                        )}
+
+                        <ExampleChips onPick={onPickExample} disabled={loading} />
+                    </section>
+                )}
             </section>
 
             <HistoryPanel

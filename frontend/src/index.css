@@ -1,127 +1,97 @@
 :root {
-  --primary: #646cff;
-  --primary-hover: #535bf2;
-  --bg-dark: #1a1a1d;
-  --bg-light: #ffffff;
-  --text-dark: #222;
-  --text-light: rgba(255, 255, 255, 0.9);
+  --primary: #6c7bff;
   --accent: #00e0a4;
-  --radius: 12px;
-  --transition: 0.3s ease;
+  --radius: 14px;
+  --radius-sm: 10px;
+
+  /* surfaces (dark default) */
+  --bg-0: #0e0e14;
+  --surface: rgba(255, 255, 255, 0.04);
+  --surface-2: rgba(255, 255, 255, 0.07);
+  --field: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.10);
+  --text: #eef0f6;
+  --text-dim: #aab0c0;
+  --text-faint: #7b8298;
+
+  /* sentiment palette */
+  --pos: #34d399; --pos-soft: rgba(52, 211, 153, 0.16);
+  --neg: #f87171; --neg-soft: rgba(248, 113, 113, 0.16);
+  --neu: #94a3b8; --neu-soft: rgba(148, 163, 184, 0.16);
+  --mix: #fbbf24; --mix-soft: rgba(251, 191, 36, 0.16);
 
   font-family: "Inter", system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.6;
-  font-weight: 400;
   color-scheme: light dark;
-  color: var(--text-light);
-  background-color: var(--bg-dark);
-  text-rendering: optimizeLegibility;
+  color: var(--text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-a {
-  font-weight: 600;
-  color: var(--primary);
-  text-decoration: none;
-  position: relative;
-  transition: color var(--transition);
-}
+* { box-sizing: border-box; }
 
-a:hover {
-  color: var(--accent);
-}
-
-a::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: -3px;
-  height: 2px;
-  width: 100%;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform var(--transition);
-}
-
-a:hover::after {
-  transform: scaleX(1);
-  transform-origin: left;
-}
+html, body { min-height: 100%; }
 
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
-  justify-content: center;
-  align-items: center;
   min-width: 320px;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #1c1c29 0%, #101014 100%);
+  color: var(--text);
+  background: radial-gradient(1200px 600px at 50% -10%, #1d1d2e 0%, var(--bg-0) 60%);
   background-attachment: fixed;
-  overflow-x: hidden;
 }
 
-h1 {
-  font-size: 3rem;
-  line-height: 1.2;
-  background: linear-gradient(90deg, var(--primary), var(--accent));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  margin-bottom: 1rem;
-  text-align: center;
+#root {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: clamp(1.2rem, 3vw, 2.6rem) clamp(1rem, 3vw, 2rem) 3rem;
 }
 
-button {
-  border-radius: var(--radius);
-  border: 1px solid transparent;
-  padding: 0.8em 1.4em;
-  font-size: 1em;
-  font-weight: 600;
-  font-family: inherit;
-  color: white;
-  background: linear-gradient(135deg, var(--primary), var(--accent));
-  cursor: pointer;
-  transition: all var(--transition);
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
-}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
 
-button:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-}
+button { font-family: inherit; }
 
-button:active {
-  transform: scale(0.97);
-}
-
-button:focus,
-button:focus-visible {
+:focus-visible {
   outline: 3px solid var(--accent);
   outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 @media (prefers-color-scheme: light) {
   :root {
-    color: var(--text-dark);
-    background-color: var(--bg-light);
+    --bg-0: #eef1f6;
+    --surface: rgba(15, 18, 30, 0.04);
+    --surface-2: rgba(15, 18, 30, 0.06);
+    --field: #ffffff;
+    --border: rgba(15, 18, 30, 0.12);
+    --text: #1a1d29;
+    --text-dim: #4b5566;
+    --text-faint: #6b7488;
+    --pos: #15803d; --pos-soft: rgba(21, 128, 61, 0.12);
+    --neg: #b91c1c; --neg-soft: rgba(185, 28, 28, 0.10);
+    --neu: #4b5563; --neu-soft: rgba(75, 85, 99, 0.10);
+    --mix: #b45309; --mix-soft: rgba(180, 83, 9, 0.10);
   }
 
   body {
-    background: linear-gradient(180deg, #f9fafc, #e8edf2);
+    background: radial-gradient(1200px 600px at 50% -10%, #ffffff 0%, var(--bg-0) 70%);
   }
+}
 
-  a {
-    color: var(--primary);
-  }
-
-  h1 {
-    -webkit-text-fill-color: var(--primary);
-  }
-
-  button {
-    background: linear-gradient(135deg, var(--primary), var(--primary-hover));
-    color: #fff;
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }

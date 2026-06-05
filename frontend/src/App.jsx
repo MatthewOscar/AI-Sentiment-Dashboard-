@@ -1,88 +1,178 @@
 import "./App.css";
-import { useState } from "react";
-import { analyzeText } from "./api";
+import { useState, useRef, useEffect } from "react";
+import { analyzeText, pingHealth } from "./api";
+import ExampleChips from "./components/ExampleChips";
+import ResultCard from "./components/ResultCard";
+import Spinner from "./components/Spinner";
 
-const emojiMap = {
-    Positive: "😊",
-    Neutral: "😐",
-    Negative: "☹️",
-};
+const SUBMIT_KEY =
+    typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform)
+        ? "⌘"
+        : "Ctrl";
 
-function App() {
+export default function App() {
     const [input, setInput] = useState("");
-    const [data, setData] = useState({}); // now handles multiple aspect results
-    const [loading, setLoading] = useState(false);
+    const [data, setData] = useState(null);
+    const [status, setStatus] = useState("idle"); // idle | loading | success | error
+    const [fieldError, setFieldError] = useState("");
+    const [errorMsg, setErrorMsg] = useState("");
+    const [cold, setCold] = useState(false); // first run / cold-start copy
 
-    const diagnoseSentence = async () => {
-        // if the input is empty, don't call the api
-        if (!input.trim()) {
-            alert("Please enter a sentence first!");
+    const lastInput = useRef("");
+    const textareaRef = useRef(null);
+    const coldTimer = useRef(null);
+
+    // Warm up a sleeping Space while the user reads and types.
+    useEffect(() => {
+        let cancelled = false;
+        const tick = async () => {
+            const ok = await pingHealth();
+            if (cancelled) return;
+            if (!ok) setTimeout(tick, 5000);
+        };
+        tick();
+        return () => {
+            cancelled = true;
+        };
+    }, []);
+
+    const runAnalysis = async (text) => {
+        const trimmed = (text ?? input).trim();
+        if (!trimmed) {
+            setFieldError("Please enter a sentence first.");
+            textareaRef.current?.focus();
             return;
         }
-
-        setLoading(true);
-        setData({});
+        setFieldError("");
+        lastInput.current = trimmed;
+        setStatus("loading");
+        setData(null);
+        setCold(false);
+        coldTimer.current = setTimeout(() => setCold(true), 3000);
 
         try {
-            // retrieve sentiment analysis from api call
-            const data = await analyzeText(input);
-            setData(data || {});
-        } catch (error) {
-            console.error("Error analyzing:", error);
-            setData({ overall: { sentiment: "Error", score: "N/A" } });
+            const result = await analyzeText(trimmed);
+            setData(result);
+            setStatus("success");
+        } catch (err) {
+            setErrorMsg(err.message || "Something went wrong.");
+            setStatus("error");
         } finally {
-            setLoading(false);
+            clearTimeout(coldTimer.current);
+            setCold(false);
         }
     };
 
+    const onPickExample = (text) => {
+        setInput(text);
+        setFieldError("");
+        runAnalysis(text);
+    };
+
+    const onKeyDown = (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === "Enter") {
+            e.preventDefault();
+            runAnalysis();
+        }
+    };
+
+    const loading = status === "loading";
+
     return (
-        <div className="app-container">
-            <h1 className="title">AI Sentiment Dashboard</h1>
+        <div className="app">
+            <header className="hero">
+                <p className="hero__badge">Aspect-based sentiment analysis</p>
+                <h1 className="hero__title">AI Sentiment Dashboard</h1>
+                <p className="hero__subtitle">
+                    Paste a sentence and see not just whether it is positive or negative,
+                    but which parts carry which feeling.
+                </p>
+            </header>
 
-            <p className="subtitle">
-                The AI Sentiment Dashboard analyzes what people feel — and which parts
-                of a message express positive, neutral, or negative emotions.
-            </p>
-
-            <div className="input-section">
+            <section className="panel" aria-label="Analyze text">
+                <label className="sr-only" htmlFor="sentiment-input">
+                    Text to analyze
+                </label>
                 <textarea
-                    placeholder='Try: "The professor was great but the homework was awful."'
+                    id="sentiment-input"
+                    ref={textareaRef}
+                    className="textarea"
+                    placeholder={'e.g. "The food was amazing but the service was painfully slow."'}
                     value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    className="sentiment-input"
-                    />
-                <button onClick={diagnoseSentence} className="diagnose-btn" disabled={loading}>
-                    {loading ? "Analyzing..." : "Analyze"}
-                </button>
-            </div>
+                    onChange={(e) => {
+                        setInput(e.target.value);
+                        if (fieldError) setFieldError("");
+                    }}
+                    onKeyDown={onKeyDown}
+                    aria-invalid={Boolean(fieldError)}
+                    aria-describedby={fieldError ? "field-error" : "hint"}
+                    rows={3}
+                />
+                {fieldError ? (
+                    <p id="field-error" className="field-error" role="alert">
+                        {fieldError}
+                    </p>
+                ) : (
+                    <p id="hint" className="hint">
+                        Press {SUBMIT_KEY} + Enter to analyze.
+                    </p>
+                )}
 
-            {Object.keys(data).length > 0 && data.overall && (
-                <div className="result-card">
-                    <h2>Results</h2>
-                    <div>
-                        <strong>Overall Sentiment</strong> →{" "}
-                        {emojiMap[data.overall.sentiment] || ""} {data.overall.sentiment} (
-                        {(data.overall.score * 100).toPrecision(3)}%)
-                    </div>
-                    {data.results &&
-                        data.results.map((r, i) => (
-                            <div key={i} className="result-line">
-                                <strong>{r.aspect}</strong> → {emojiMap[r.sentiment] || ""}{" "}
-                                {r.sentiment} ({(r.score * 100).toPrecision(3)}%)
-                            </div>
-                        ))}
+                <div className="composer__actions">
+                    <button className="btn" onClick={() => runAnalysis()} disabled={loading}>
+                        {loading ? (
+                            <>
+                                <Spinner /> {cold ? "Waking up the model…" : "Analyzing…"}
+                            </>
+                        ) : (
+                            "Analyze"
+                        )}
+                    </button>
                 </div>
-            )}
+
+                <ExampleChips onPick={onPickExample} disabled={loading} />
+            </section>
+
+            <section className="results" aria-live="polite" aria-busy={loading}>
+                {status === "idle" && (
+                    <div className="state state--empty">
+                        <p>Enter a sentence or pick an example to see aspect-level sentiment.</p>
+                    </div>
+                )}
+
+                {loading && (
+                    <div className="state state--loading">
+                        <Spinner size={28} />
+                        <p>
+                            {cold
+                                ? "The model is waking up. The first run can take up to a minute."
+                                : "Analyzing your text…"}
+                        </p>
+                    </div>
+                )}
+
+                {status === "error" && (
+                    <div className="state state--error" role="alert">
+                        <p>{errorMsg}</p>
+                        <button
+                            className="btn btn--ghost"
+                            onClick={() => runAnalysis(lastInput.current)}
+                        >
+                            Retry
+                        </button>
+                    </div>
+                )}
+
+                {status === "success" && data && data.overall && <ResultCard data={data} />}
+            </section>
 
             <footer className="footer">
                 <p>
-                    This app uses AI models to detect emotional tone and context. Results
-                    are probabilistic, not deterministic.
+                    This app uses AI models to detect emotional tone and context. Results are
+                    probabilistic, not deterministic.
                 </p>
-                <p>Built for FAU CAP 4630 – Responsible AI Project</p>
+                <p>No text is stored. Built for FAU CAP 4630 – Responsible AI.</p>
             </footer>
         </div>
     );
 }
-
-export default App;

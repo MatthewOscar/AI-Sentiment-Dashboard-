@@ -244,6 +244,94 @@
 .chip--mix { border-left-color: var(--mix); }
 .chip--mix .chip__tag { color: var(--mix); }
 
+/* ---------- history ---------- */
+.history {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: clamp(0.9rem, 2.5vw, 1.3rem);
+}
+
+.history__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.7rem;
+}
+
+.history__title {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--text-dim);
+}
+
+.history__clear {
+  background: none;
+  border: none;
+  color: var(--text-faint);
+  font-size: 0.82rem;
+  cursor: pointer;
+  padding: 0.2em 0.4em;
+  border-radius: 6px;
+}
+
+.history__clear:hover { color: var(--neg); }
+
+.history__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.history__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  text-align: left;
+  padding: 0.5em 0.7em;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-left-width: 4px;
+  color: var(--text);
+  cursor: pointer;
+  transition: transform 0.12s ease, background 0.2s ease;
+}
+
+.history__item:hover { transform: translateX(2px); background: var(--surface); }
+.history__item.is-active { box-shadow: 0 0 0 1px var(--accent); }
+
+.history--pos { border-left-color: var(--pos); }
+.history--neg { border-left-color: var(--neg); }
+.history--neu { border-left-color: var(--neu); }
+.history--mix { border-left-color: var(--mix); }
+
+.history--pos .history__tag { color: var(--pos); }
+.history--neg .history__tag { color: var(--neg); }
+.history--neu .history__tag { color: var(--neu); }
+.history--mix .history__tag { color: var(--mix); }
+
+.history__tag { font-weight: 700; flex: 0 0 auto; }
+
+.history__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-size: 0.9rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.history__time {
+  flex: 0 0 auto;
+  font-size: 0.76rem;
+  color: var(--text-faint);
+}
+
 /* ---------- result states ---------- */
 .results { min-height: 80px; }
 

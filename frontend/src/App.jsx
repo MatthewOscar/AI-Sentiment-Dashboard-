@@ -6,6 +6,8 @@ import ResultCard from "./components/ResultCard";
 import Spinner from "./components/Spinner";
 import ThemeToggle from "./components/ThemeToggle";
 import MouseGlow from "./components/MouseGlow";
+import HistoryPanel from "./components/HistoryPanel";
+import { loadHistory, addToHistory, clearHistory, makeId } from "./lib/history";
 
 const SUBMIT_KEY =
     typeof navigator !== "undefined" && /Mac|iPhone|iPad/.test(navigator.platform)
@@ -19,6 +21,8 @@ export default function App() {
     const [fieldError, setFieldError] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const [cold, setCold] = useState(false); // first run / cold-start copy
+    const [history, setHistory] = useState(() => loadHistory());
+    const [activeId, setActiveId] = useState(null);
 
     const lastInput = useRef("");
     const textareaRef = useRef(null);
@@ -54,8 +58,11 @@ export default function App() {
 
         try {
             const result = await analyzeText(trimmed);
+            const entry = { id: makeId(), text: trimmed, data: result, ts: Date.now() };
             setData(result);
             setStatus("success");
+            setActiveId(entry.id);
+            setHistory((prev) => addToHistory(prev, entry));
         } catch (err) {
             setErrorMsg(err.message || "Something went wrong.");
             setStatus("error");
@@ -76,6 +83,20 @@ export default function App() {
             e.preventDefault();
             runAnalysis();
         }
+    };
+
+    // Restore a past analysis from the local cache without calling the model.
+    const restoreFromHistory = (item) => {
+        setInput(item.text);
+        setData(item.data);
+        setStatus("success");
+        setActiveId(item.id);
+        setFieldError("");
+    };
+
+    const onClearHistory = () => {
+        setHistory(clearHistory());
+        setActiveId(null);
     };
 
     const loading = status === "loading";
@@ -136,6 +157,13 @@ export default function App() {
 
                 <ExampleChips onPick={onPickExample} disabled={loading} />
             </section>
+
+            <HistoryPanel
+                items={history}
+                onSelect={restoreFromHistory}
+                onClear={onClearHistory}
+                activeId={activeId}
+            />
 
             <section className="results" aria-live="polite" aria-busy={loading}>
                 {status === "idle" && (

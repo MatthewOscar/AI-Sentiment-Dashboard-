@@ -67,20 +67,45 @@ This helps users interpret outputs responsibly and understand uncertainty.
 ---
 
 ## Installation & Usage
-Frontend:  
-Make sure Node.js is installed: https://nodejs.org/en  
-Open the project repo in Visual Studio or vscode and Run the following commands in terminal  
-`cd frontend`  
-`npm install` to install frontend dependencies. (Everything is listed in package.json)  
-`npm run dev` to launch the app  
+Quick start:
 
-Backend:  
-Run the following commands in terminal  
-`cd backend`  
-`pip install -r requirements.txt`  to install python requirements. (All requirements are listed in Requirements.txt)   
-`uvicorn app:app --reload --port 8000`  to launch FastAPI backend. Any port can be used that is avaliable.  
-If you need to change the port number from the default 8000, you must also change it in api.jsx on line 3:  
-`const response = await fetch("http://127.0.0.1:8000/api/analyze", {`  
+1. Create and activate the Python virtual environment.
+
+```bash
+python3 -m venv .venv
+source .venv/bin/activate      # Mac/Linux
+# or: .venv\Scripts\activate   # Windows
+```
+
+2. Install the backend dependencies.
+
+```bash
+pip3 install -r backend/requirements.txt
+```
+
+3. Start the app.
+
+```bash
+./start-dev.sh
+```
+
+The launcher starts both the FastAPI backend and the Vite frontend, and it writes logs to `.backend-dev.log` and `.frontend-dev.log` in the repo root.
+
+If you prefer to run things separately:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+```bash
+cd backend
+uvicorn app:app --reload --port 8000
+```
+
+If you change the backend port from `8000`, update the URL in `frontend/src/api.jsx` too.
+
 ## System Architecture
 
 The AI Sentiment Dashboard follows a simple and transparent architecture consisting of three core layers:

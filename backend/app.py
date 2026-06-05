@@ -26,7 +26,7 @@ app.add_middleware(
 nlp = spacy.load("en_core_web_trf")
 
 model_name = "yangheng/deberta-v3-base-absa-v1.1"
-absa_tokenizer = AutoTokenizer.from_pretrained(model_name)
+absa_tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
 absa_model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
 # -------------------------------------------------------

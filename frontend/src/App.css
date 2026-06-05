@@ -504,7 +504,6 @@
 .result__intro { flex: 1 1 240px; text-align: left; }
 .result__title { margin: 0 0 0.2rem; font-size: 1.3rem; }
 .result__sub { margin: 0 0 0.8rem; color: var(--text-dim); font-size: 0.95rem; }
-.result__emotion { margin: 0 0 0.8rem; color: var(--text-dim); font-size: 0.95rem; }
 
 .result__section {
   margin: 1.6rem 0 0.8rem;
@@ -665,8 +664,7 @@
 .bar--mix .bar__tag { color: var(--mix); }
 
 .bar__pct { font-size: 0.82rem; font-weight: 700; color: var(--text-dim); }
-.bar__phrase { font-size: 0.92rem; color: var(--text); margin-bottom: 0.3rem; }
-.bar__emotion { font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem; }
+.bar__phrase { font-size: 0.92rem; color: var(--text); margin-bottom: 0.45rem; }
 
 .bar__track {
   height: 8px;
@@ -698,6 +696,35 @@
 .seg--neg { background: var(--neg); }
 .seg--neu { background: var(--neu); }
 .seg--pos { background: var(--pos); }
+
+/* shared pager (aspect breakdown) */
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 0.7rem;
+}
+
+.pager__btn {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text);
+  font-size: 0.78rem;
+  padding: 0.3em 0.8em;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.pager__btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pager__info {
+  font-size: 0.76rem;
+  color: var(--text-faint);
+}
 
 /* footer */
 .footer {

@@ -3,7 +3,7 @@ import { motion } from "motion/react";
 import Gauge from "./Gauge";
 import HighlightedText from "./HighlightedText";
 import AspectBars from "./AspectBars";
-import { metaFor, SENTIMENT_META, emotionMeta } from "../lib/sentiment";
+import { metaFor, SENTIMENT_META } from "../lib/sentiment";
 
 // Composes the overall gauge, the highlighted input, and the per-aspect bars,
 // and owns the shared hover key that links a bar to its highlighted phrase.
@@ -24,12 +24,6 @@ export default function ResultCard({ data }) {
                 <div className="result__intro">
                     <h2 className="result__title">Overall: {metaFor(overall.sentiment).label}</h2>
                     <p className="result__sub">Here is how each part of the message reads.</p>
-                    {overall.emotion && (
-                        <p className="result__emotion">
-                            Overall emotion: {emotionMeta(overall.emotion.label).emoji}{" "}
-                            {emotionMeta(overall.emotion.label).label}
-                        </p>
-                    )}
                     <Legend />
                 </div>
             </div>

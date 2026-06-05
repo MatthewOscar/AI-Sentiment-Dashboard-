@@ -36,35 +36,6 @@ model_name = "yangheng/deberta-v3-base-absa-v1.1"
 absa_tokenizer = AutoTokenizer.from_pretrained(model_name, use_fast=False)
 absa_model = AutoModelForSequenceClassification.from_pretrained(model_name)
 
-# Emotion classifier (7 single-label emotions). Loaded the same way as the ABSA
-# model; adds an emotion axis on top of sentiment polarity.
-emotion_name = "j-hartmann/emotion-english-distilroberta-base"
-emotion_tokenizer = AutoTokenizer.from_pretrained(emotion_name)
-emotion_model = AutoModelForSequenceClassification.from_pretrained(emotion_name)
-
-
-# Below this top-class probability the model is not confident in any single
-# emotion (common for short or ambiguous input), so we report neutral instead of
-# a noisy label.
-EMOTION_MIN_CONFIDENCE = 0.4
-
-
-def classify_emotion(text: str):
-    """Return the dominant emotion as {label, score}, falling back to neutral
-    when the model is not confident in any single emotion."""
-    inputs = emotion_tokenizer(text, return_tensors="pt", truncation=True)
-    with torch.no_grad():
-        probs = F.softmax(emotion_model(**inputs).logits, dim=1)[0]
-    idx = int(torch.argmax(probs))
-    label = emotion_model.config.id2label[idx]
-    score = probs[idx].item()
-
-    if score < EMOTION_MIN_CONFIDENCE and label != "neutral":
-        neutral_idx = emotion_model.config.label2id.get("neutral", idx)
-        return {"label": "neutral", "score": round(float(probs[neutral_idx]), 2)}
-
-    return {"label": label, "score": round(score, 2)}
-
 # -------------------------------------------------------
 # 📦 Request Model
 # -------------------------------------------------------
@@ -162,7 +133,6 @@ def analyze_prompt(request: TextRequest):
                     "Neutral": round(probs[1].item(), 2),
                     "Positive": round(probs[2].item(), 2),
                 },
-                "emotion": classify_emotion(aspect),
             }
             results.append(entry)
             if sentiment in grouped:
@@ -215,8 +185,7 @@ def analyze_prompt(request: TextRequest):
             "text": prompt,
             "overall": {
                 "sentiment": overall_sentiment,
-                "score": round(overall_confidence, 2),
-                "emotion": classify_emotion(prompt),
+                "score": round(overall_confidence, 2)
             },
             "grouped": grouped,
             "results": results

@@ -22,21 +22,6 @@ export function metaFor(sentiment) {
     );
 }
 
-// Emotion taxonomy (j-hartmann 7-emotion model). A distinct axis from sentiment.
-export const EMOTION_META = {
-    anger: { label: "Anger", emoji: "😠" },
-    disgust: { label: "Disgust", emoji: "🤢" },
-    fear: { label: "Fear", emoji: "😨" },
-    joy: { label: "Joy", emoji: "😄" },
-    neutral: { label: "Neutral", emoji: "😐" },
-    sadness: { label: "Sadness", emoji: "😢" },
-    surprise: { label: "Surprise", emoji: "😲" },
-};
-
-export function emotionMeta(label) {
-    return EMOTION_META[(label || "").toLowerCase()] || { label: label || "—", emoji: "❓" };
-}
-
 // Backend scores are 0..1; render as a whole-number percent.
 export function pct(score) {
     if (typeof score !== "number" || Number.isNaN(score)) return "—";

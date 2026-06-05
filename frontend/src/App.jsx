@@ -102,7 +102,7 @@ export default function App() {
     const loading = status === "loading";
 
     return (
-        <div className="app">
+        <div className={`app${history.length ? " app--side" : ""}`}>
             <MouseGlow />
             <ThemeToggle />
             <header className="hero">
@@ -158,13 +158,6 @@ export default function App() {
                 <ExampleChips onPick={onPickExample} disabled={loading} />
             </section>
 
-            <HistoryPanel
-                items={history}
-                onSelect={restoreFromHistory}
-                onClear={onClearHistory}
-                activeId={activeId}
-            />
-
             <section className="results" aria-live="polite" aria-busy={loading}>
                 {status === "idle" && (
                     <div className="state state--empty">
@@ -197,6 +190,13 @@ export default function App() {
 
                 {status === "success" && data && data.overall && <ResultCard data={data} />}
             </section>
+
+            <HistoryPanel
+                items={history}
+                onSelect={restoreFromHistory}
+                onClear={onClearHistory}
+                activeId={activeId}
+            />
 
             <footer className="footer">
                 <p>

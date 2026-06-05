@@ -1,8 +1,39 @@
 /* ---------- layout ---------- */
 .app {
+  max-width: 880px;
+  margin: 0 auto;
   display: flex;
   flex-direction: column;
   gap: 1.8rem;
+}
+
+/* On wide screens, once there is history, move it into a sticky right sidebar
+   so it no longer sits between the input and the results. */
+@media (min-width: 1080px) {
+  .app--side {
+    max-width: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 300px;
+    grid-template-areas:
+      "hero    hero"
+      "panel   side"
+      "results side"
+      "footer  footer";
+    column-gap: 1.8rem;
+    row-gap: 1.8rem;
+  }
+
+  .app--side .hero { grid-area: hero; }
+  .app--side .panel { grid-area: panel; }
+  .app--side .results { grid-area: results; }
+  .app--side .footer { grid-area: footer; }
+
+  .app--side .history {
+    grid-area: side;
+    align-self: start;
+    position: sticky;
+    top: 1.5rem;
+  }
 }
 
 /* theme toggle */

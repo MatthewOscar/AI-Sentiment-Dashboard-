@@ -42,7 +42,7 @@ body {
 }
 
 #root {
-  max-width: 880px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: clamp(1.2rem, 3vw, 2.6rem) clamp(1rem, 3vw, 2rem) 3rem;
 }

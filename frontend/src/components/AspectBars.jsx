@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { metaFor, pct } from "../lib/sentiment";
+import { metaFor, pct, emotionMeta } from "../lib/sentiment";
 
 // Segment order for the stacked distribution bar (left to right).
 const SEGMENTS = [
@@ -20,6 +20,7 @@ export default function AspectBars({ results, hoveredKey, onHover }) {
                 const meta = metaFor(r.sentiment);
                 const active = hoveredKey === i;
                 const probs = r.probabilities;
+                const emo = r.emotion ? emotionMeta(r.emotion.label) : null;
                 const label = probs
                     ? `${r.aspect}: ${meta.label} ${pct(r.score)}. Positive ${pct(probs.Positive)}, Neutral ${pct(probs.Neutral)}, Negative ${pct(probs.Negative)}`
                     : `${r.aspect}: ${meta.label}, ${pct(r.score)}`;
@@ -41,6 +42,11 @@ export default function AspectBars({ results, hoveredKey, onHover }) {
                             <span className="bar__pct">{pct(r.score)}</span>
                         </div>
                         <div className="bar__phrase">{r.aspect}</div>
+                        {emo && (
+                            <div className="bar__emotion">
+                                Emotion: {emo.emoji} {emo.label}
+                            </div>
+                        )}
 
                         {probs ? (
                             <div className="bar__stack" aria-hidden="true">

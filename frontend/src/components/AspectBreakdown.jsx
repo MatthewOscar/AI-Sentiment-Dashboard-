@@ -10,14 +10,14 @@ const SEGMENTS = [
     { key: "pos", label: "Positive", prob: "Positive" },
 ];
 
-const PAGE_SIZE = 3;
-
 // Per-aspect breakdown panel. Donuts on desktop, stacked bars on narrow screens.
 // Paginated at 3 rows. Hover/focus cross-highlights the matching phrase in the
 // text (keyed by each result's original index).
 export default function AspectBreakdown({ results, hoveredKey, onHover }) {
     const [page, setPage] = useState(0);
     const isDesktop = useMediaQuery("(min-width: 1080px)");
+    // Donuts are larger, so show fewer per page than the compact mobile bars.
+    const pageSize = isDesktop ? 2 : 3;
     const firstAspect = results?.[0]?.aspect;
     const count = results ? results.length : 0;
 
@@ -27,10 +27,10 @@ export default function AspectBreakdown({ results, hoveredKey, onHover }) {
 
     if (!results || results.length === 0) return null;
 
-    const pageCount = Math.ceil(results.length / PAGE_SIZE);
+    const pageCount = Math.ceil(results.length / pageSize);
     const safePage = Math.min(page, pageCount - 1);
-    const start = safePage * PAGE_SIZE;
-    const visible = results.map((r, i) => ({ r, i })).slice(start, start + PAGE_SIZE);
+    const start = safePage * pageSize;
+    const visible = results.map((r, i) => ({ r, i })).slice(start, start + pageSize);
 
     const hoverProps = (i) => ({
         tabIndex: 0,

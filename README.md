@@ -10,8 +10,10 @@ Slides: https://1drv.ms/p/c/6c383511022771d7/EW9zlOjly_RIvPyB5oOc7LgB9Kawy8fz8QU
 
 ## Live demo
 
-- App (Netlify): _add your Netlify URL here after deploying_
-- API (Hugging Face Space): _add your Space URL here after deploying_
+- **App:** https://ai-sentiment-dashboard.netlify.app
+- **API (Hugging Face Space):** https://MatthewOscar-ai-sentiment-api.hf.space
+
+> The API runs on a free Hugging Face Space that sleeps after 48 hours idle. The first request after a nap takes roughly 30 to 60 seconds to wake the model, and the app shows a "waking up" state while it does. It is instant after that.
 
 See [DEPLOY.md](DEPLOY.md) for the full deployment walkthrough.
 
@@ -21,14 +23,16 @@ Most sentiment demos return one label for an entire sentence, which falls apart 
 
 ## Features
 
-- Aspect-level analysis that handles mixed and contrasting opinions in one sentence
-- The original text re-rendered with each aspect highlighted by sentiment
-- A confidence gauge for the overall result and a bar for every aspect
-- Hover a bar to light up its phrase in the text, and the other way round
-- One-click example prompts, including two mixed-sentiment sentences
-- Clear loading, empty, and error states, with a retry on failure
-- Keyboard submit, ARIA labels, and shape glyphs so meaning never depends on color alone
-- Light and dark themes that follow the system setting, with reduced-motion support
+- **Aspect-level analysis** that handles mixed and contrasting opinions in one sentence
+- **In-text highlighting:** the message is re-rendered with each aspect colored by sentiment; hovering an aspect lights up its phrase, and the other way round
+- **Per-aspect probability distribution**, shown as a donut on desktop and a stacked bar on mobile, alongside an overall confidence gauge
+- **Dashboard layout:** the result takes over the input, with the breakdown and a recent-history panel in a side rail on wide screens
+- **Local history** of recent analyses, cached so you can reopen a past result instantly, with pagination
+- **Shareable links:** the analyzed text lives in the URL, so a link opens straight to its result
+- **Backend status indicator** and graceful cold-start handling for the free hosting
+- **One-click example prompts**, including mixed-sentiment sentences
+- **Accessibility:** keyboard submit, ARIA labels, and shape glyphs so meaning never depends on color alone, plus clear loading/empty/error states with retry
+- **Light and dark themes** that follow the system setting (with a manual toggle) and reduced-motion support
 
 ## Before and after
 
@@ -36,7 +40,7 @@ Most sentiment demos return one label for an entire sentence, which falls apart 
 | --- | --- |
 | ![before](docs/screenshots/before-result.png) | ![after](docs/screenshots/after-mixed.png) |
 
-The starting point was a single page that printed results as a flat list of text. The rebuild adds the gauge, the in-text highlighting, the per-aspect bars, and a public deployment.
+The starting point was a single localhost page that printed results as a flat list of text. The rebuild adds the overall gauge, in-text aspect highlighting, a per-aspect probability breakdown (donuts on desktop), a cached history with shareable links, light and dark theming, and a public deployment.
 
 ## Tech stack
 
@@ -52,9 +56,9 @@ The starting point was a single page that printed results as a flat list of text
 
 1. The React frontend sends the text to the backend at `POST /api/analyze`.
 2. spaCy splits the text into clauses, with an extra split on contrast words such as "but" and "however".
-3. The DeBERTa ABSA model scores each clause as Positive, Negative, or Neutral with a confidence value.
+3. The DeBERTa ABSA model scores each clause, returning a probability for Positive, Negative, and Neutral.
 4. The backend combines the clause scores into an overall label (Positive, Negative, Neutral, or Mixed) and returns the per-aspect breakdown as JSON.
-5. The frontend renders the gauge, highlights each aspect in the original text, and draws the confidence bars.
+5. The frontend renders the gauge, highlights each aspect in the original text, and shows each aspect's class distribution as a donut (desktop) or stacked bar (mobile), with the breakdown and recent history in a side rail.
 
 ## Run it locally
 

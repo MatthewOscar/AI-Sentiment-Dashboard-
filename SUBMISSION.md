@@ -9,8 +9,10 @@
 
 The AI Sentiment Dashboard reads a sentence and shows the feeling behind each part of it, not a single label stamped on the whole thing. You type a message, hit Analyze, and it breaks the sentence into aspects, scores each one, and highlights the exact words that carried the sentiment. A line like "the food was amazing but the service was painfully slow" comes back as Mixed, with the praise in green and the complaint in red.
 
-**Live demo:** [add your Netlify URL]
-**Code:** [add your GitHub repo URL]
+**Live demo:** https://ai-sentiment-dashboard.netlify.app
+**Code:** https://github.com/MatthewOscar/AI-Sentiment-Dashboard-
+
+> The API runs on a free Hugging Face Space that sleeps after 48h idle, so the first load may take ~30 to 60 seconds to wake the model. The app shows a "waking up" state while it does, then it is instant.
 
 [Optional: drop a short screen recording or GIF here. A 10 second clip of clicking a Mixed example and watching the two clauses light up is the best thing you can show.]
 
@@ -33,10 +35,11 @@ After:
 What changed:
 
 - **In-text highlighting.** The original sentence is re-rendered with each aspect highlighted by sentiment, so you can see which words drove the score. Hovering a bar lights up its phrase in the text, and hovering a phrase lights up its bar.
-- **A real dashboard.** An animated confidence gauge for the overall read, plus a bar for every aspect. The visuals are hand-built SVG animated with Motion, so the bundle stays small and the styling matches the theme exactly.
+- **A real dashboard.** An animated confidence gauge for the overall read, and a per-aspect probability breakdown shown as donuts on desktop and stacked bars on mobile, laid out in a side rail next to the highlighted text. The visuals are hand-built SVG animated with Motion, so the bundle stays small and the styling matches the theme exactly.
 - **It is actually deployed.** The React app runs on Netlify and the FastAPI model API runs on a Hugging Face Docker Space, wired together with an environment variable.
 - **Honest internals.** The backend was loading a heavy spaCy transformer pipeline that was only being used to split sentences, so I swapped it for the small model and cut the cold-start time and memory hard. I also fixed a bug where a neutral result always reported 0% confidence, and added a real loading, empty, and error state with retry.
-- **Accessibility and themes.** Every sentiment shows a word and a shape glyph as well as a color, so it does not rely on hue alone. There is keyboard submit, ARIA labelling, a responsive mobile layout, and light and dark themes that follow the system setting.
+- **Accessibility and themes.** Every sentiment shows a word and a shape glyph as well as a color, so it does not rely on hue alone. There is keyboard submit, ARIA labelling, a responsive mobile layout, and light and dark themes that follow the system setting with a manual toggle.
+- **Then I kept going past the original list.** A cached local history you can reopen instantly (it never re-calls the model), shareable links that carry the analyzed text in the URL so a link opens straight to its result, and a backend status indicator with graceful cold-start handling for the free hosting.
 
 Neutral confidence, before and after, is a small example of the kind of thing that had been quietly wrong:
 

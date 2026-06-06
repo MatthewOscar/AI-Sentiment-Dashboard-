@@ -285,7 +285,8 @@ export default function App() {
                     This app uses AI models to detect emotional tone and context. Results are
                     probabilistic, not deterministic.
                 </p>
-                <p>No text is stored. Built for FAU CAP 4630 – Responsible AI.</p>
+                <p>No text is stored. Originally built for FAU CAP 4630 (Responsible AI).</p>
+                <p>Revived by Matthew Wyatt for the GitHub Finish-Up-A-Thon.</p>
             </footer>
         </div>
     );

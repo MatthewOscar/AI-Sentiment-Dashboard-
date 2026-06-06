@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 import torch
 import torch.nn.functional as F
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
@@ -40,7 +40,9 @@ absa_model = AutoModelForSequenceClassification.from_pretrained(model_name)
 # 📦 Request Model
 # -------------------------------------------------------
 class TextRequest(BaseModel):
-    text: str
+    # Generous cap: long enough for a paragraph, short enough to keep a public
+    # Space from being hit with huge or abusive inputs.
+    text: str = Field(..., max_length=5000)
 
 
 # -------------------------------------------------------

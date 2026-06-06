@@ -226,6 +226,7 @@ export default function App() {
                             aria-invalid={Boolean(fieldError)}
                             aria-describedby={fieldError ? "field-error" : "hint"}
                             rows={3}
+                            maxLength={5000}
                         />
                         {fieldError ? (
                             <p id="field-error" className="field-error" role="alert">

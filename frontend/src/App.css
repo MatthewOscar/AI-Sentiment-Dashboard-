@@ -813,6 +813,9 @@
 .footer p { margin: 0.2rem 0; }
 
 @media (max-width: 560px) {
+  /* Drop the hero below the fixed corner controls (status pill + theme toggle)
+     so they do not overlap the centered badge on narrow screens. */
+  .hero { margin-top: 2.8rem; }
   .result__top { justify-content: center; }
   .result__intro { text-align: center; }
   .gauge { width: 140px; height: 140px; }

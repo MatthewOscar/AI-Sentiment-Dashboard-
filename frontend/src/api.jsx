@@ -1,6 +1,10 @@
 // Base URL of the FastAPI backend. Configured via VITE_API_URL at build time
 // (set in Netlify); falls back to the local dev server when unset.
-const API_BASE = import.meta.env.VITE_API_URL || "http://127.0.0.1:8000";
+// In production VITE_API_URL points at the deployed backend. For local dev it
+// falls back to the same host the page was loaded from (so opening the app on a
+// phone via the Mac's LAN IP also reaches the backend on that IP), port 8000.
+const API_BASE =
+    import.meta.env.VITE_API_URL || `http://${window.location.hostname}:8000`;
 
 // Ping the backend so a sleeping Hugging Face Space starts waking up before the
 // user submits. Resolves true when the server is reachable.

@@ -14,14 +14,14 @@ fi
 if curl -fsS --max-time 2 http://127.0.0.1:8000/docs >/dev/null 2>&1; then
   echo "Backend already running on $BACKEND_URL"
 else
-  nohup "$BACKEND_PYTHON" -m uvicorn app:app --app-dir "$ROOT_DIR/backend" --host 127.0.0.1 --port 8000 > "$ROOT_DIR/.backend-dev.log" 2>&1 &
+  nohup "$BACKEND_PYTHON" -m uvicorn app:app --app-dir "$ROOT_DIR/backend" --host "${HOST:-127.0.0.1}" --port 8000 > "$ROOT_DIR/.backend-dev.log" 2>&1 &
   echo "Started backend on $BACKEND_URL"
 fi
 
 if curl -fsS --max-time 2 "$FRONTEND_URL" >/dev/null 2>&1; then
   echo "Frontend already running on $FRONTEND_URL"
 else
-  (cd "$ROOT_DIR/frontend" && nohup npm run dev -- --host 127.0.0.1 > "$ROOT_DIR/.frontend-dev.log" 2>&1) &
+  (cd "$ROOT_DIR/frontend" && nohup npm run dev -- --host "${HOST:-127.0.0.1}" > "$ROOT_DIR/.frontend-dev.log" 2>&1) &
   echo "Started frontend on $FRONTEND_URL"
 fi
 

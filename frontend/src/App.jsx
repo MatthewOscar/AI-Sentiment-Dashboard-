@@ -7,6 +7,7 @@ import Spinner from "./components/Spinner";
 import ThemeToggle from "./components/ThemeToggle";
 import MouseGlow from "./components/MouseGlow";
 import HistoryPanel from "./components/HistoryPanel";
+import AspectBreakdown from "./components/AspectBreakdown";
 import StatusDot from "./components/StatusDot";
 import { loadHistory, addToHistory, clearHistory, makeId } from "./lib/history";
 
@@ -37,6 +38,7 @@ export default function App() {
     const [activeId, setActiveId] = useState(null);
     const [backendReady, setBackendReady] = useState(false);
     const [copied, setCopied] = useState(false);
+    const [hoveredKey, setHoveredKey] = useState(null);
 
     const lastInput = useRef("");
     const textareaRef = useRef(null);
@@ -69,6 +71,7 @@ export default function App() {
         setStatus("loading");
         setData(null);
         setCold(false);
+        setHoveredKey(null);
         coldTimer.current = setTimeout(() => setCold(true), 3000);
 
         try {
@@ -117,6 +120,7 @@ export default function App() {
         setData(item.data);
         setStatus("success");
         setActiveId(item.id);
+        setHoveredKey(null);
         setFieldError("");
         setQueryParam(item.text);
     };
@@ -132,6 +136,7 @@ export default function App() {
         setData(null);
         setInput("");
         setActiveId(null);
+        setHoveredKey(null);
         setFieldError("");
         setErrorMsg("");
         setQueryParam("");
@@ -158,9 +163,11 @@ export default function App() {
     };
 
     const loading = status === "loading";
+    const hasRail =
+        (status === "success" && data?.results?.length > 0) || history.length > 0;
 
     return (
-        <div className={`app${history.length ? " app--side" : ""}`}>
+        <div className={`app${hasRail ? " app--side" : ""}`}>
             <MouseGlow />
             <StatusDot ready={backendReady} />
             <ThemeToggle />
@@ -186,7 +193,7 @@ export default function App() {
                                 {copied ? "Copied!" : "Copy link"}
                             </button>
                         </div>
-                        <ResultCard data={data} />
+                        <ResultCard data={data} hoveredKey={hoveredKey} onHover={setHoveredKey} />
                         <button type="button" className="btn btn--block" onClick={startNew}>
                             Add another
                         </button>
@@ -253,12 +260,25 @@ export default function App() {
                 )}
             </section>
 
-            <HistoryPanel
-                items={history}
-                onSelect={restoreFromHistory}
-                onClear={onClearHistory}
-                activeId={activeId}
-            />
+            {hasRail && (
+                <aside className="rail">
+                    {status === "success" && data?.results?.length > 0 && (
+                        <AspectBreakdown
+                            results={data.results}
+                            hoveredKey={hoveredKey}
+                            onHover={setHoveredKey}
+                        />
+                    )}
+                    {history.length > 0 && (
+                        <HistoryPanel
+                            items={history}
+                            onSelect={restoreFromHistory}
+                            onClear={onClearHistory}
+                            activeId={activeId}
+                        />
+                    )}
+                </aside>
+            )}
 
             <footer className="footer">
                 <p>

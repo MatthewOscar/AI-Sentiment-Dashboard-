@@ -1,8 +1,9 @@
 import { useState, useEffect } from "react";
 import { motion } from "motion/react";
+import DonutChart from "./DonutChart";
 import { metaFor, pct } from "../lib/sentiment";
+import { useMediaQuery } from "../lib/useMediaQuery";
 
-// Segment order for the stacked distribution bar (left to right).
 const SEGMENTS = [
     { key: "neg", label: "Negative", prob: "Negative" },
     { key: "neu", label: "Neutral", prob: "Neutral" },
@@ -11,16 +12,15 @@ const SEGMENTS = [
 
 const PAGE_SIZE = 3;
 
-// Per-aspect bars. When the backend returns the full class distribution, show a
-// stacked Negative/Neutral/Positive bar; otherwise (older cached entries) fall
-// back to a single confidence fill. Paginated at 3 rows. Hover/focus
-// cross-highlights the phrase (uses each result's original index as the key).
-export default function AspectBars({ results, hoveredKey, onHover }) {
+// Per-aspect breakdown panel. Donuts on desktop, stacked bars on narrow screens.
+// Paginated at 3 rows. Hover/focus cross-highlights the matching phrase in the
+// text (keyed by each result's original index).
+export default function AspectBreakdown({ results, hoveredKey, onHover }) {
     const [page, setPage] = useState(0);
+    const isDesktop = useMediaQuery("(min-width: 1080px)");
     const firstAspect = results?.[0]?.aspect;
     const count = results ? results.length : 0;
 
-    // Reset to the first page when a new result is shown.
     useEffect(() => {
         setPage(0);
     }, [firstAspect, count]);
@@ -30,17 +30,49 @@ export default function AspectBars({ results, hoveredKey, onHover }) {
     const pageCount = Math.ceil(results.length / PAGE_SIZE);
     const safePage = Math.min(page, pageCount - 1);
     const start = safePage * PAGE_SIZE;
-    const visible = results
-        .map((r, i) => ({ r, i }))
-        .slice(start, start + PAGE_SIZE);
+    const visible = results.map((r, i) => ({ r, i })).slice(start, start + PAGE_SIZE);
+
+    const hoverProps = (i) => ({
+        tabIndex: 0,
+        onMouseEnter: () => onHover?.(i),
+        onMouseLeave: () => onHover?.(null),
+        onFocus: () => onHover?.(i),
+        onBlur: () => onHover?.(null),
+    });
 
     return (
-        <>
-            <ul className="bars">
+        <section className="aspects" aria-label="Aspect breakdown">
+            <h2 className="aspects__title">Aspect breakdown</h2>
+            <ul className="aspects__list">
                 {visible.map(({ r, i }, vIdx) => {
                     const meta = metaFor(r.sentiment);
                     const active = hoveredKey === i;
                     const probs = r.probabilities;
+
+                    if (isDesktop) {
+                        return (
+                            <li
+                                key={i}
+                                className={`aspect-row aspect-row--${meta.key} ${active ? "is-active" : ""}`}
+                                role="img"
+                                aria-label={`${r.aspect}: ${meta.label} ${pct(r.score)}`}
+                                {...hoverProps(i)}
+                            >
+                                <DonutChart
+                                    sentiment={r.sentiment}
+                                    score={r.score}
+                                    probabilities={probs}
+                                />
+                                <div className="aspect-row__body">
+                                    <span className="aspect-row__tag">
+                                        {meta.glyph} {meta.label} · {pct(r.score)}
+                                    </span>
+                                    <span className="aspect-row__phrase">{r.aspect}</span>
+                                </div>
+                            </li>
+                        );
+                    }
+
                     const label = probs
                         ? `${r.aspect}: ${meta.label} ${pct(r.score)}. Positive ${pct(probs.Positive)}, Neutral ${pct(probs.Neutral)}, Negative ${pct(probs.Negative)}`
                         : `${r.aspect}: ${meta.label}, ${pct(r.score)}`;
@@ -51,11 +83,7 @@ export default function AspectBars({ results, hoveredKey, onHover }) {
                             className={`bar bar--${meta.key} ${active ? "is-active" : ""}`}
                             role="img"
                             aria-label={label}
-                            tabIndex={0}
-                            onMouseEnter={() => onHover?.(i)}
-                            onMouseLeave={() => onHover?.(null)}
-                            onFocus={() => onHover?.(i)}
-                            onBlur={() => onHover?.(null)}
+                            {...hoverProps(i)}
                         >
                             <div className="bar__head">
                                 <span className="bar__tag">{meta.glyph} {meta.label}</span>
@@ -122,6 +150,6 @@ export default function AspectBars({ results, hoveredKey, onHover }) {
                     </button>
                 </div>
             )}
-        </>
+        </section>
     );
 }

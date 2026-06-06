@@ -1,14 +1,12 @@
-import { useState } from "react";
 import { motion } from "motion/react";
 import Gauge from "./Gauge";
 import HighlightedText from "./HighlightedText";
-import AspectBars from "./AspectBars";
 import { metaFor, SENTIMENT_META } from "../lib/sentiment";
 
-// Composes the overall gauge, the highlighted input, and the per-aspect bars,
-// and owns the shared hover key that links a bar to its highlighted phrase.
-export default function ResultCard({ data }) {
-    const [hoveredKey, setHoveredKey] = useState(null);
+// The main-column result: the overall gauge, a legend, and the original text
+// with each aspect highlighted. The per-aspect breakdown now lives in the right
+// rail (AspectBreakdown), so the hover key is owned by App and passed in.
+export default function ResultCard({ data, hoveredKey, onHover }) {
     const overall = data.overall || {};
     const results = data.results || [];
 
@@ -32,15 +30,8 @@ export default function ResultCard({ data }) {
                 text={data.text}
                 results={results}
                 hoveredKey={hoveredKey}
-                onHover={setHoveredKey}
+                onHover={onHover}
             />
-
-            {results.length > 0 && (
-                <>
-                    <h3 className="result__section">Aspect breakdown</h3>
-                    <AspectBars results={results} hoveredKey={hoveredKey} onHover={setHoveredKey} />
-                </>
-            )}
         </motion.div>
     );
 }

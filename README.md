@@ -1,6 +1,6 @@
 # AI Sentiment Dashboard
 
-A web tool that reads a sentence and shows the feeling behind each part of it, not only a single label for the whole thing. Type a message, click Analyze, and the dashboard breaks it into aspects, scores each one, and highlights the exact words that drove the result.
+A web tool that reads a sentence and shows the feeling behind each part of it, down to the exact words. Type a message, click Analyze, and the dashboard breaks it into aspects, scores each one, and highlights the words that drove the result.
 
 Built for Florida Atlantic University's CAP 4630 (Artificial Intelligence) as a Responsible AI project.
 

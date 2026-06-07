@@ -51,7 +51,7 @@ A small example of the kind of thing that was quietly wrong: a neutral result us
 
 Copilot earned its keep on the unglamorous parts of the rebuild. The fiddliest piece was mapping each model result back onto the original sentence so the right words light up, including the case where a clause comes back with a leading "but" attached. Copilot helped me work through that matching logic fast. It also sped up the SVG math behind the gauge and the donut segments, and getting the Dockerfile right so the model weights bake into the image at build time instead of downloading on the first request.
 
-I still owned the decisions that shaped the result: dropping the heavy spaCy model, choosing hand-built SVG over a chart library to keep things lean, reporting neutral instead of a confident guess when the model was unsure, and framing the before-and-after. Copilot was fast hands. The direction was mine.
+I still owned the decisions that shaped the result: dropping the heavy spaCy model, choosing hand-built SVG over a chart library to keep things lean, reporting neutral when the model was unsure, and framing the before-and-after. It sped up the grunt work so I could spend my time on the design and the architecture.
 
 ---
 

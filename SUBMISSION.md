@@ -1,4 +1,4 @@
-<!-- Images are hot-linked from the GitHub repo (main branch), so no manual upload is needed in the DEV editor. To add the demo GIF: record it, save it as docs/screenshots/demo.gif, push to main, then uncomment the GIF line in the Demo section. -->
+<!-- Images and the demo GIF are hot-linked from the GitHub repo (finish-up-a-thon branch), so no manual upload is needed in the DEV editor. Keep that branch in the repo so the links keep resolving. -->
 
 *This is a submission for the [GitHub Finish-Up-A-Thon Challenge](https://dev.to/challenges/github-2026-05-21)*
 
@@ -11,25 +11,25 @@ It started as a group project for my Artificial Intelligence course (CAP 4630) a
 ## Demo
 
 **Live app:** https://ai-sentiment-dashboard.netlify.app
-**Code:** https://github.com/MatthewOscar/AI-Sentiment-Dashboard-
+**Code:** https://github.com/MatthewOscar/AI-Sentiment-Dashboard-/tree/finish-up-a-thon
 
 The Mixed examples are the best place to start. Click one and watch the two clauses light up in different colors.
 
 > Heads up: the API runs on a free Hugging Face Space that sleeps after a couple of days idle. The first load after a quiet stretch takes about 30 to 60 seconds to wake the model, and the app shows a "waking up" state while it does. It is instant after that.
 
-![Demo: analyzing a mixed sentence](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/demo.gif)
+![Demo: analyzing a mixed sentence](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/finish-up-a-thon/docs/screenshots/demo.gif)
 
-![The dashboard analyzing a mixed sentence](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/after-mixed.png)
+![The dashboard analyzing a mixed sentence](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/finish-up-a-thon/docs/screenshots/after-mixed.png)
 
 On a phone the layout stacks and the donuts become compact bars:
 
-![Mobile layout](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/after-mobile.png)
+![Mobile layout](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/finish-up-a-thon/docs/screenshots/after-mobile.png)
 
 ## The Comeback Story
 
 Here is the honest before. The entire result was a list of text lines:
 
-![Before: results as a flat list of text](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/before-result.png)
+![Before: results as a flat list of text](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/finish-up-a-thon/docs/screenshots/before-result.png)
 
 The repo even had a "Future Improvements" list that named the two things we never got to: a word-level explainability view, and a real deployment. I made that list the plan, checked off both boxes, and then kept going.
 
@@ -45,7 +45,7 @@ A small example of the kind of thing that was quietly wrong: a neutral result us
 
 | Before | After |
 | --- | --- |
-| ![Neutral showing 0.00%](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/before-neutral.png) | ![Neutral showing 98%](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/after-neutral.png) |
+| ![Neutral showing 0.00%](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/finish-up-a-thon/docs/screenshots/before-neutral.png) | ![Neutral showing 98%](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/finish-up-a-thon/docs/screenshots/after-neutral.png) |
 
 ## My Experience with GitHub Copilot
 
@@ -55,6 +55,6 @@ I still owned the decisions that shaped the result: dropping the heavy spaCy mod
 
 ---
 
-Revived and shipped solo by Matthew Wyatt. It began as a group course project at FAU, and the original team is credited in the [repo README](https://github.com/MatthewOscar/AI-Sentiment-Dashboard-).
+Revived and shipped solo by Matthew Wyatt. It began as a group course project at FAU, and the original team is credited in the [repo README](https://github.com/MatthewOscar/AI-Sentiment-Dashboard-/blob/finish-up-a-thon/README.md).
 
 Thanks for reading. If you try it, start with a Mixed example.

@@ -67,12 +67,8 @@ The tool stores nothing. Each request is processed once and discarded. Every res
 
 React 19 and Vite on the frontend, with hand-built SVG visuals animated with Motion. FastAPI on the backend, using spaCy for clause splitting and a DeBERTa ABSA model for the sentiment scoring. Deployed on Netlify and a Hugging Face Docker Space.
 
-## Team
+## Author
 
-- Machine Learning Lead: Christopher Piedra [@username]
-- Backend Developer: Matthew White [@username]
-- Frontend Developer: Matthew Wyatt [@username]
-- Data Engineer: Sophia Camacho [@username]
-- Responsible AI and Documentation Lead / PM: Mackenzie Falla [@username]
+Revived and shipped solo by Matthew Wyatt (GitHub [@MatthewOscar](https://github.com/MatthewOscar)). It began as a group course project at FAU; the original team is credited in the repo README.
 
 Thanks for reading. If you try the demo, the Mixed examples are the ones to start with.

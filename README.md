@@ -15,8 +15,6 @@ Slides: https://1drv.ms/p/c/6c383511022771d7/EW9zlOjly_RIvPyB5oOc7LgB9Kawy8fz8QU
 
 > The API runs on a free Hugging Face Space that sleeps after 48 hours idle. The first request after a nap takes roughly 30 to 60 seconds to wake the model, and the app shows a "waking up" state while it does. It is instant after that.
 
-See [DEPLOY.md](DEPLOY.md) for the full deployment walkthrough.
-
 ## What makes it different
 
 Most sentiment demos return one label for an entire sentence, which falls apart on real opinions like "the food was amazing but the service was slow." This dashboard uses **aspect-based sentiment analysis**: it splits a sentence into its parts, scores each part on its own, and then sums them into an overall read. A mixed sentence comes back as Mixed, with the positive clause shown in green and the negative clause in red.

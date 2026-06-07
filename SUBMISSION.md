@@ -1,74 +1,62 @@
-<!--
-  DEV.to submission draft for the GitHub Finish-Up-A-Thon.
-  Fill in the bracketed placeholders, upload the images from docs/screenshots/
-  into the DEV editor, then paste this in. Tags suggestion: #githubchallenge #ai #react #python
-  Title suggestion: "Finishing the sentiment dashboard I left at 'it works on my machine'"
--->
+<!-- Images are hot-linked from the GitHub repo (main branch), so no manual upload is needed in the DEV editor. To add the demo GIF: record it, save it as docs/screenshots/demo.gif, push to main, then uncomment the GIF line in the Demo section. -->
 
-## What I built
+*This is a submission for the [GitHub Finish-Up-A-Thon Challenge](https://dev.to/challenges/github-2026-05-21)*
 
-The AI Sentiment Dashboard reads a sentence and shows the feeling behind each part of it, not a single label stamped on the whole thing. You type a message, hit Analyze, and it breaks the sentence into aspects, scores each one, and highlights the exact words that carried the sentiment. A line like "the food was amazing but the service was painfully slow" comes back as Mixed, with the praise in green and the complaint in red.
+## What I Built
 
-**Live demo:** https://ai-sentiment-dashboard.netlify.app
+The AI Sentiment Dashboard reads a sentence and shows the feeling behind each part of it, down to the exact words. You type a message, hit Analyze, and it splits the text into clauses, scores each one, and highlights which parts are positive, negative, or neutral. A line like "the food was amazing but the service was painfully slow" comes back as Mixed, with the praise in green and the complaint in red.
+
+It started as a group project for my Artificial Intelligence course (CAP 4630) at Florida Atlantic University. The model side was the fun part, since reading sentiment clause by clause is a real step up from stamping one label on a whole sentence, but it stalled the way course projects do once the grade lands. It only ran on my laptop, the results were a plain wall of text, and the README still described a model we had already swapped out. Finishing it had been nagging at me for a while, so this challenge was the push to actually do it.
+
+## Demo
+
+**Live app:** https://ai-sentiment-dashboard.netlify.app
 **Code:** https://github.com/MatthewOscar/AI-Sentiment-Dashboard-
 
-> The API runs on a free Hugging Face Space that sleeps after 48h idle, so the first load may take ~30 to 60 seconds to wake the model. The app shows a "waking up" state while it does, then it is instant.
+The Mixed examples are the best place to start. Click one and watch the two clauses light up in different colors.
 
-[Optional: drop a short screen recording or GIF here. A 10 second clip of clicking a Mixed example and watching the two clauses light up is the best thing you can show.]
+> Heads up: the API runs on a free Hugging Face Space that sleeps after a couple of days idle. The first load after a quiet stretch takes about 30 to 60 seconds to wake the model, and the app shows a "waking up" state while it does. It is instant after that.
 
-## Why this one mattered to me
+*(Screen recording coming here.)*
+<!-- After you add docs/screenshots/demo.gif and push to main, uncomment the next line: -->
+<!-- ![Demo: analyzing a mixed sentence](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/demo.gif) -->
 
-We started this as a team project for FAU's CAP 4630 (Artificial Intelligence) course. The model work was genuinely interesting, since aspect-based sentiment is a real step up from the usual positive-or-negative demo, but the project stalled the way course projects do once the grade is in. It ran on localhost, the UI printed results as a plain wall of text, and the README described a model we were not even using anymore. It was the classic "works on my machine, then never touched again" repo. I wanted to actually finish it.
+![The dashboard analyzing a mixed sentence](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/after-mixed.png)
 
-## The comeback story
+On a phone the layout stacks and the donuts become compact bars:
 
-Here is the honest before. The whole result was a list of lines of text:
+![Mobile layout](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/after-mobile.png)
 
-![Before: a flat text list of results](docs/screenshots/before-result.png)
+## The Comeback Story
 
-The repo even had a "Future Improvements" list that called out the two things we never did: add a word-level explainability view, and deploy it so other people could use it. So I made that list the plan and checked off both boxes.
+Here is the honest before. The entire result was a list of text lines:
 
-After:
+![Before: results as a flat list of text](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/before-result.png)
 
-![After: gauge, in-text highlighting, and per-aspect bars](docs/screenshots/after-mixed.png)
+The repo even had a "Future Improvements" list that named the two things we never got to: a word-level explainability view, and a real deployment. I made that list the plan, checked off both boxes, and then kept going.
 
 What changed:
 
-- **In-text highlighting.** The original sentence is re-rendered with each aspect highlighted by sentiment, so you can see which words drove the score. Hovering a bar lights up its phrase in the text, and hovering a phrase lights up its bar.
-- **A real dashboard.** An animated confidence gauge for the overall read, and a per-aspect probability breakdown shown as donuts on desktop and stacked bars on mobile, laid out in a side rail next to the highlighted text. The visuals are hand-built SVG animated with Motion, so the bundle stays small and the styling matches the theme exactly.
-- **It is actually deployed.** The React app runs on Netlify and the FastAPI model API runs on a Hugging Face Docker Space, wired together with an environment variable.
-- **Honest internals.** The backend was loading a heavy spaCy transformer pipeline that was only being used to split sentences, so I swapped it for the small model and cut the cold-start time and memory hard. I also fixed a bug where a neutral result always reported 0% confidence, and added a real loading, empty, and error state with retry.
-- **Accessibility and themes.** Every sentiment shows a word and a shape glyph as well as a color, so it does not rely on hue alone. There is keyboard submit, ARIA labelling, a responsive mobile layout, and light and dark themes that follow the system setting with a manual toggle.
-- **Then I kept going past the original list.** A cached local history you can reopen instantly (it never re-calls the model), shareable links that carry the analyzed text in the URL so a link opens straight to its result, and a backend status indicator with graceful cold-start handling for the free hosting.
+- **In-text highlighting.** The sentence is re-rendered with each clause colored by its sentiment, so you can see which words drove the result. Hovering a chart entry lights up its phrase in the text, and hovering a phrase lights up its chart entry.
+- **A real dashboard.** An animated confidence gauge for the overall read, plus a per-clause probability breakdown shown as donut charts on desktop and stacked bars on mobile, laid out in a side rail next to the highlighted text. The visuals are hand-built SVG, so the bundle stays small and the styling matches the theme.
+- **It is actually deployed.** The React app runs on Netlify and the Python model API runs on a Hugging Face Docker Space, wired together with an environment variable.
+- **Honest internals.** The backend was loading a heavy spaCy transformer pipeline just to split sentences, so I swapped it for the small model and cut the cold start and memory hard. I fixed a bug where a neutral result always reported zero percent confidence, and added proper loading, empty, and error states with retry.
+- **Polish that adds up.** A cached local history you can reopen instantly without re-calling the model, shareable links that carry the analyzed text in the URL, a backend status indicator, accessibility (keyboard submit, ARIA labels, and shape glyphs so meaning never rides on color alone), and light and dark themes that follow the system setting.
 
-Neutral confidence, before and after, is a small example of the kind of thing that had been quietly wrong:
+A small example of the kind of thing that was quietly wrong: a neutral result used to show zero percent confidence. Before and after:
 
 | Before | After |
 | --- | --- |
-| ![before neutral showing 0.00%](docs/screenshots/before-neutral.png) | ![after neutral showing 98%](docs/screenshots/after-neutral.png) |
+| ![Neutral showing 0.00%](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/before-neutral.png) | ![Neutral showing 98%](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/after-neutral.png) |
 
-## How AI assistance fit in
+## My Experience with GitHub Copilot
 
-<!--
-  HONEST NOTE: the challenge template asks specifically about GitHub Copilot's role.
-  Describe what you actually used. If you used Copilot in the editor, say where
-  (autocomplete, inline edits, chat). If you used another AI coding tool, name it.
-  Do not claim Copilot did work it did not do; judges read these and authenticity reads well.
-  A candid line about the recent move to usage-based Copilot pricing is fair game if it is true for you.
--->
+Copilot earned its keep on the unglamorous parts of the rebuild. The fiddliest piece was mapping each model result back onto the original sentence so the right words light up, including the case where a clause comes back with a leading "but" attached. Copilot helped me work through that matching logic fast. It also sped up the SVG math behind the gauge and the donut segments, and getting the Dockerfile right so the model weights bake into the image at build time instead of downloading on the first request.
 
-I leaned on AI coding assistance heavily for the rebuild, and it was most useful for the unglamorous parts: writing the aspect-to-text matching that maps each model result back onto the original sentence (including the annoying case where a clause comes back with a leading "but"), generating the SVG gauge math, and getting the Dockerfile right so the model weights bake into the image at build time instead of downloading on the first request. I still made the calls that mattered: dropping the heavy spaCy model, choosing hand-built SVG plus Motion over a chart library, and shaping the before-and-after story. The assistant was fast hands; the direction was mine.
+I still owned the decisions that shaped the result: dropping the heavy spaCy model, choosing hand-built SVG over a chart library to keep things lean, reporting neutral instead of a confident guess when the model was unsure, and framing the before-and-after. Copilot was fast hands. The direction was mine.
 
-## Responsible AI
+---
 
-The tool stores nothing. Each request is processed once and discarded. Every result shows a confidence value and the breakdown of which words led to it, and the footer is clear that the output is probabilistic and meant for learning, not advice. The model reflects its training data, so it can miss sarcasm and handle slang or dialects unevenly, and I say so plainly in the UI.
+Revived and shipped solo by Matthew Wyatt. It began as a group course project at FAU, and the original team is credited in the [repo README](https://github.com/MatthewOscar/AI-Sentiment-Dashboard-).
 
-## Tech
-
-React 19 and Vite on the frontend, with hand-built SVG visuals animated with Motion. FastAPI on the backend, using spaCy for clause splitting and a DeBERTa ABSA model for the sentiment scoring. Deployed on Netlify and a Hugging Face Docker Space.
-
-## Author
-
-Revived and shipped solo by Matthew Wyatt (GitHub [@MatthewOscar](https://github.com/MatthewOscar)). It began as a group course project at FAU; the original team is credited in the repo README.
-
-Thanks for reading. If you try the demo, the Mixed examples are the ones to start with.
+Thanks for reading. If you try it, start with a Mixed example.

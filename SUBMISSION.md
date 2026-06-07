@@ -17,9 +17,7 @@ The Mixed examples are the best place to start. Click one and watch the two clau
 
 > Heads up: the API runs on a free Hugging Face Space that sleeps after a couple of days idle. The first load after a quiet stretch takes about 30 to 60 seconds to wake the model, and the app shows a "waking up" state while it does. It is instant after that.
 
-*(Screen recording coming here.)*
-<!-- After you add docs/screenshots/demo.gif and push to main, uncomment the next line: -->
-<!-- ![Demo: analyzing a mixed sentence](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/demo.gif) -->
+![Demo: analyzing a mixed sentence](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/demo.gif)
 
 ![The dashboard analyzing a mixed sentence](https://raw.githubusercontent.com/MatthewOscar/AI-Sentiment-Dashboard-/main/docs/screenshots/after-mixed.png)
 
